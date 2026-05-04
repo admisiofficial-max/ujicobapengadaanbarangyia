@@ -99,7 +99,7 @@
     <div class="login-page" id="loginPage">
         <div class="login-box">
             <h2>Sistem Pengadaan</h2>
-            <p><strong>Asesor:</strong> asesor/123<br><strong>Admin:</strong> admin/123<br><strong>Pemohon:</strong> pemohon/123</p>
+            <p>Silakan login menggunakan akun Anda.</p>
             <form id="formLogin">
                 <div class="input-group"><label>Username</label><input type="text" id="user" required></div>
                 <div class="input-group"><label>Password</label><input type="password" id="pass" required></div>
@@ -428,6 +428,9 @@
         // ==========================================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyj0uOzfCCpguTdTtM1n8D02LWE9c1ObTzhu-RsJdW_SXaX6Fqv1Bg0I_si4bYSt5sc/exec"; 
         
+        // DATA AKUN PERMANEN (Tidak bisa dihapus)
+        const akunAuthor = { user: 'author', pass: '123', role: 'asesor', nama: 'Author', nipy: '00000', jabatan: 'System Creator', bidang: 'Super Admin' };
+
         let sysUsers = [];
         let dataItems = [];
         let dataBAST = []; 
@@ -452,6 +455,7 @@
                 // Jika database kosong, gunakan default
                 if(Object.keys(cloudData).length === 0) {
                     sysUsers = [
+                        akunAuthor, // <-- AKUN AUTHOR PERMANEN
                         { user: 'asesor', pass: '123', role: 'asesor', nama: 'Bapak Asesor', nipy: '11111', jabatan: 'Ketua Yayasan', bidang: 'Manajemen' },
                         { user: 'admin', pass: '123', role: 'admin', nama: 'Bapak Admin', nipy: '22222', jabatan: 'Staff Logistik', bidang: 'Logistik' },
                         { user: 'pemohon', pass: '123', role: 'pemohon', nama: 'Bagus Setiawan', nipy: '33333', jabatan: 'Staff IT', bidang: 'IT Support' }
@@ -464,6 +468,12 @@
                     idPengajuanGroup = cloudData.idPengajuanGroup || 1;
                     idItemCounter = cloudData.idItemCounter || 1;
                     idBastCounter = cloudData.idBastCounter || 1;
+
+                    // Perlindungan berlapis: Jika entah bagaimana akun author hilang di cloud, paksa kembalikan
+                    if(!sysUsers.find(u => u.user === 'author')) {
+                        sysUsers.unshift(akunAuthor);
+                        saveToCloud('sysUsers', sysUsers);
+                    }
                 }
 
                 // Matikan layar loading, tampilkan login page / auto login
@@ -522,11 +532,15 @@
             saveToCloud('idBastCounter', idBastCounter);
         }
 
-        // Fungsi Reset Database
+        // Fungsi Reset Database (Dengan Perlindungan Author)
         function resetSemuaData() { 
-            if(confirm('Hapus SELURUH data sistem di CLOUD DATABASE?')) { 
+            if(confirm('Peringatan: Ini akan menghapus SEMUA pengajuan, BAST, dan Akun (Kecuali Akun Author). Lanjutkan reset Cloud Database?')) { 
                 localStorage.clear();
-                saveToCloud('sysUsers', []); saveToCloud('dataItems', []); saveToCloud('dataBAST', []);
+                
+                // Jangan kirim array kosong untuk user, tapi kirim array yang HANYA BERISI Author
+                saveToCloud('sysUsers', [akunAuthor]); 
+                saveToCloud('dataItems', []); 
+                saveToCloud('dataBAST', []);
                 saveToCloud('idPengajuanGroup', 1); saveToCloud('idItemCounter', 1); saveToCloud('idBastCounter', 1);
                 
                 document.getElementById('loadingApp').style.display = 'flex';
@@ -545,7 +559,7 @@
 
 
         // =======================================================================
-        // DI BAWAH INI ADALAH LOGIKA APLIKASI UTAMA (TIDAK ADA YANG BERUBAH)
+        // LOGIKA APLIKASI UTAMA
         // =======================================================================
 
         // --- LOGIN & ROLE LOGIC ---
@@ -600,7 +614,11 @@
             saveData(); alert("Pengguna berhasil ditambahkan!"); tutupModalUser(); renderTables();
         });
 
-        function hapusUser(idx) { if(confirm('Hapus pengguna ini?')) { sysUsers.splice(idx, 1); saveData(); renderTables(); } }
+        // FUNGSI HAPUS USER (MENCEGAH PENGHAPUSAN AUTHOR)
+        function hapusUser(idx) { 
+            if (sysUsers[idx].user === 'author') return alert('Sistem Menolak: Akun permanen Author tidak dapat dihapus!');
+            if(confirm('Hapus pengguna ini?')) { sysUsers.splice(idx, 1); saveData(); renderTables(); } 
+        }
 
         // --- EDIT USER ---
         function bukaModalEditUser(idx) {
@@ -621,6 +639,18 @@
         document.getElementById('formEditUser').addEventListener('submit', (e) => {
             e.preventDefault();
             let idx = document.getElementById('euIdx').value; let usr = document.getElementById('euUser').value;
+
+            // MENCEGAH PERUBAHAN FATAL PADA AKUN AUTHOR
+            if (sysUsers[idx].user === 'author') {
+                if (usr !== 'author') {
+                    document.getElementById('euUser').value = 'author';
+                    return alert("Sistem Menolak: Username untuk akun permanen tidak boleh diubah!");
+                }
+                if (document.getElementById('euRole').value !== 'asesor') {
+                    document.getElementById('euRole').value = 'asesor';
+                    return alert("Sistem Menolak: Role untuk akun permanen harus tetap Asesor!");
+                }
+            }
 
             let existingUserIndex = sysUsers.findIndex(u => u.user === usr);
             if (existingUserIndex !== -1 && existingUserIndex != idx) { return alert("Username tersebut sudah digunakan oleh akun lain!"); }
@@ -816,8 +846,16 @@
             if(activeUser.role === 'asesor') {
                 const tbU = document.getElementById('bodyTabelUser'); tbU.innerHTML = '';
                 sysUsers.forEach((u, idx) => {
-                    let btnHapus = `<button class="btn-danger" onclick="hapusUser(${idx})">Hapus</button>`; let btnEdit = `<button class="btn-warning" onclick="bukaModalEditUser(${idx})">Edit</button>`;
-                    if(u.user === activeUser.user) { btnHapus = `<span style="font-size:11px;color:#7f8c8d; margin-left:5px;">(Akun Anda)</span>`; }
+                    let btnHapus = `<button class="btn-danger" onclick="hapusUser(${idx})">Hapus</button>`; 
+                    let btnEdit = `<button class="btn-warning" onclick="bukaModalEditUser(${idx})">Edit</button>`;
+                    
+                    // PERLINDUNGAN TAMPILAN UNTUK AKUN AUTHOR
+                    if(u.user === 'author') {
+                        btnHapus = `<span style="font-size:11px;color:#e74c3c; margin-left:5px; font-weight:bold;">[PERMANEN]</span>`;
+                    } else if(u.user === activeUser.user) { 
+                        btnHapus = `<span style="font-size:11px;color:#7f8c8d; margin-left:5px;">(Akun Anda)</span>`; 
+                    }
+                    
                     let clRole = u.role === 'asesor' ? 'bg-info' : (u.role === 'admin' ? 'bg-warning' : 'bg-secondary');
                     tbU.innerHTML += `<tr><td><strong>${u.nama}</strong><br><small>NIPY: ${u.nipy}</small></td><td>${u.jabatan}<br><small>${u.bidang}</small></td><td>${u.user}</td><td><span class="badge ${clRole}">${u.role.toUpperCase()}</span></td><td>${btnEdit} ${btnHapus}</td></tr>`;
                 });
