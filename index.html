@@ -442,7 +442,7 @@
         // --- FUNGSI MENGAMBIL DATA DARI GOOGLE SHEETS (CLOUD) ---
         async function loadDataFromCloud() {
             try {
-                if (API_URL === "https://script.google.com/macros/s/AKfycbyj0uOzfCCpguTdTtM1n8D02LWE9c1ObTzhu-RsJdW_SXaX6Fqv1Bg0I_si4bYSt5sc/exec") {
+                if (API_URL === "MASUKKAN_URL_API_KAMU_DI_SINI") {
                     throw new Error("URL API Belum Diganti!");
                 }
 
@@ -504,7 +504,7 @@
 
         // --- FUNGSI MENYIMPAN KE GOOGLE SHEETS (CLOUD) ---
         function saveToCloud(keyName, valueData) {
-            if (API_URL === "https://script.google.com/macros/s/AKfycbyj0uOzfCCpguTdTtM1n8D02LWE9c1ObTzhu-RsJdW_SXaX6Fqv1Bg0I_si4bYSt5sc/exec") return;
+            if (API_URL === "MASUKKAN_URL_API_KAMU_DI_SINI") return;
             fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
