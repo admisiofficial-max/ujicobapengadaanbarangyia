@@ -80,16 +80,12 @@
         .form-grid-item { display: grid; grid-template-columns: 2fr 2fr 1fr 1fr 2fr 2fr; gap: 10px; }
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         
-        #btn-reset-data { background-color: transparent; border: none; color: #e74c3c; cursor: pointer; text-decoration: underline; font-size: 11px; margin-top: 15px; }
-        
         .dash-table-controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .dash-table-controls input, .dash-table-controls select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; flex: 1; min-width: 150px; }
 
         /* =======================================================
            RESPONSIVE DESIGN (MEDIA QUERIES)
            ======================================================= */
-        
-        /* TABLET & MOBILE KECIL */
         @media (max-width: 992px) {
             .filter-panel { grid-template-columns: repeat(2, 1fr); }
             .filter-panel button { grid-column: 1 / -1; }
@@ -98,52 +94,27 @@
             .form-grid-item .i-nama, .form-grid-item .i-guna { grid-column: 1 / -1; }
         }
 
-        /* MOBILE (HP) */
         @media (max-width: 768px) {
-            .main-dashboard {
-                grid-template-columns: 1fr;
-                grid-template-rows: 60px auto 1fr; /* Tambah baris untuk menu horizontal */
-            }
-            
+            .main-dashboard { grid-template-columns: 1fr; grid-template-rows: 60px auto 1fr; }
             header { grid-column: 1; padding: 0 15px; }
             .app-title { font-size: 16px; }
             .profile-section { font-size: 12px; }
-            .profile-section span#displayNama { display: none; } /* Sembunyikan nama di header HP, tampilkan inisial & role saja */
+            .profile-section span#displayNama { display: none; } 
             
-            aside { 
-                grid-column: 1; 
-                padding-top: 0; 
-                overflow-x: auto; /* Bisa scroll ke samping */
-                white-space: nowrap; 
-                background: #2c3e50; 
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-                z-index: 5;
-            }
-            
+            aside { grid-column: 1; padding-top: 0; overflow-x: auto; white-space: nowrap; background: #2c3e50; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 5; }
             .menu-list { display: flex; }
-            .menu-list li { 
-                padding: 12px 20px; 
-                border-bottom: 0; 
-                border-right: 1px solid #34495e; 
-            }
-            .menu-list li:hover, .menu-list li.active { 
-                padding-left: 20px; /* Reset padding hover */
-                border-left: 0; 
-                border-bottom: 3px solid #f39c12; 
-                background: #34495e; 
-            }
+            .menu-list li { padding: 12px 20px; border-bottom: 0; border-right: 1px solid #34495e; }
+            .menu-list li:hover, .menu-list li.active { padding-left: 20px; border-left: 0; border-bottom: 3px solid #f39c12; background: #34495e; }
 
             main { padding: 15px; }
             .card { padding: 15px; }
-            
             .filter-panel { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: 1fr; }
-            #mainStatsGrid { grid-template-columns: 1fr !important; } /* Force column on mobile */
+            #mainStatsGrid { grid-template-columns: 1fr !important; } 
             
             .form-grid-3, .form-grid-2 { grid-template-columns: 1fr; }
             .form-grid-item { grid-template-columns: 1fr; }
             .form-grid-item input { grid-column: 1 !important; }
-
             .login-box { padding: 30px 20px; }
             .modal { padding: 20px 10px; }
             .modal-content { padding: 20px 15px; }
@@ -170,7 +141,6 @@
                 <button type="submit" class="btn-primary">Login</button>
                 <div id="error-msg" style="color:red; margin-top:10px; font-size:13px;"></div>
             </form>
-            <button id="btn-reset-data" onclick="resetSemuaData()">Hapus & Reset Semua Data di Cloud</button>
         </div>
     </div>
 
@@ -191,6 +161,8 @@
                 <li onclick="switchMenu('proses')" id="menu-proses">Proses</li>
                 <li onclick="switchMenu('serah-terima')" id="menu-serah-terima">Serah Terima</li>
                 <li onclick="switchMenu('database')" id="menu-database">Database</li>
+                <!-- Menu Pengaturan hanya untuk Author -->
+                <li onclick="switchMenu('pengaturan')" id="menu-pengaturan" style="display: none; border-left-color: #e74c3c;">Pengaturan</li>
                 <li onclick="logoutSistem()" style="color: #e74c3c; border-right: none;" id="menu-logout">Logout</li>
             </ul>
         </aside>
@@ -309,6 +281,16 @@
                     <table><thead><tr><th>ID Item</th><th>Pemohon (Bidang)</th><th>Barang</th><th>Qty</th><th>Total Biaya</th><th>Status Akhir</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="bodyTabelHistoriItem"></tbody></table>
                 </div>
             </div>
+
+            <!-- MENU PENGATURAN (KHUSUS AUTHOR) -->
+            <div id="content-pengaturan" class="page-content">
+                <div class="card" style="border-left: 5px solid #e74c3c;">
+                    <h2 style="color: #e74c3c; margin-bottom: 10px;">Zona Berbahaya (Danger Zone)</h2>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Fitur ini hanya dapat diakses oleh Master Akun (Author). Tindakan di bawah ini akan menghapus seluruh data pengajuan, BAST, dan akun pengguna (kecuali akun Author) dari database Cloud.</p>
+                    <button class="btn-danger" onclick="resetSemuaData()" style="padding: 10px 20px; font-size: 14px; font-weight: bold; width: auto;">⚠ Hapus & Reset Semua Data Cloud</button>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -629,6 +611,13 @@
         function applyRolePermissions() {
             document.getElementById('menu-proses').style.display = 'block'; document.getElementById('menu-serah-terima').style.display = 'block'; document.getElementById('menu-database').style.display = 'block'; document.getElementById('panelFilter').style.display = 'grid';
             
+            // Tampilkan menu Pengaturan HANYA jika user adalah 'author'
+            if (activeUser.user === 'author') {
+                document.getElementById('menu-pengaturan').style.display = 'block';
+            } else {
+                document.getElementById('menu-pengaturan').style.display = 'none';
+            }
+            
             if (activeUser.role === 'asesor') document.getElementById('card-manajemen-user').style.display = 'block'; else document.getElementById('card-manajemen-user').style.display = 'none';
             
             if (activeUser.role === 'pemohon') {
@@ -637,7 +626,6 @@
                 document.getElementById('dashFilterBidangKhusus').style.display = 'none'; 
                 document.getElementById('card-avg-time').style.display = 'none';
                 document.getElementById('card-target').style.display = 'none';
-                // Reset grid if pemohon, but respect media query logic via CSS mostly.
                 if (window.innerWidth > 768) { document.getElementById('mainStatsGrid').style.gridTemplateColumns = 'repeat(2, 1fr)'; }
             } else {
                 document.getElementById('dashFilterBidangKhusus').style.display = 'inline-block';
@@ -871,11 +859,14 @@
             if(activeUser && activeUser.role === 'asesor') {
                 const tbU = document.getElementById('bodyTabelUser'); tbU.innerHTML = '';
                 sysUsers.forEach((u, idx) => {
+                    // SEMBUNYIKAN AKUN AUTHOR DARI ASESOR BIASA
+                    if(u.user === 'author' && activeUser.user !== 'author') return;
+
                     let btnHapus = `<button class="btn-danger" onclick="hapusUser(${idx})">Hapus</button>`; 
                     let btnEdit = `<button class="btn-warning" onclick="bukaModalEditUser(${idx})">Edit</button>`;
                     
                     if(u.user === 'author') {
-                        btnHapus = `<span style="font-size:11px;color:#e74c3c; margin-left:5px; font-weight:bold;">[PERMANEN]</span>`;
+                        btnHapus = `<span style="font-size:11px;color:#e74c3c; margin-left:5px; font-weight:bold;">[MASTER]</span>`;
                     } else if(u.user === activeUser.user) { 
                         btnHapus = `<span style="font-size:11px;color:#7f8c8d; margin-left:5px;">(Akun Anda)</span>`; 
                     }
