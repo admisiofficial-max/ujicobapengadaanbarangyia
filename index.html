@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pengadaan & Serah Terima</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f0f2f5; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; overflow: hidden; }
+
+        /* --- STYLES LOADING --- */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; color: #2c3e50; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- STYLES LOGIN --- */
+        .login-page { display: none; justify-content: center; align-items: center; width: 100%; height: 100%; }
+        .login-box { background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
+        .login-box h2 { margin-bottom: 10px; color: #2c3e50; }
+        .login-box p { font-size: 13px; color: #7f8c8d; margin-bottom: 20px; line-height: 1.5; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px; color:#444;}
+        .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; }
+        .input-group input[readonly] { background-color: #e9ecef; color: #495057; cursor: not-allowed; border-color: #ccc; }
+        
+        .btn-primary { width: 100%; padding: 10px 15px; background: #2c3e50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; }
+        .btn-primary:hover { background: #1a252f; }
+        .btn-success { background: #27ae60; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 3px; }
+        .btn-warning { background: #f39c12; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 3px; }
+        .btn-danger { background: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 3px; }
+        .btn-info { background: #3498db; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 3px; }
+
+        /* --- STYLES DASHBOARD LAYOUT --- */
+        .main-dashboard { display: none; width: 100%; height: 100vh; grid-template-columns: 240px 1fr; grid-template-rows: 60px 1fr; }
+        header { grid-column: 1 / 3; background: #fff; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 10; }
+        .app-title { font-weight: bold; font-size: 18px; color: #2c3e50; }
+        .profile-section { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        .profile-pic { width: 35px; height: 35px; background: #2c3e50; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; }
+        .role-badge { font-size: 11px; background: #f39c12; color: white; padding: 2px 6px; border-radius: 10px; margin-left: 5px; font-weight: normal; }
+
+        aside { background: #2c3e50; color: white; padding-top: 20px; overflow-y: auto; }
+        .menu-list { list-style: none; }
+        .menu-list li { padding: 15px 25px; cursor: pointer; border-bottom: 1px solid #34495e; transition: 0.3s; }
+        .menu-list li:hover, .menu-list li.active { background: #34495e; padding-left: 30px; font-weight: bold; border-left: 4px solid #f39c12; }
+
+        main { padding: 30px; overflow-y: auto; position: relative; }
+        .page-content { display: none; }
+        .page-content.active { display: block; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; overflow-x: auto; }
+
+        /* --- STYLES DASHBOARD WIDGETS --- */
+        .filter-panel { display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 15px; align-items: end; background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 20px; transition: 0.3s; }
+        .stat-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 5px solid #2c3e50; }
+        .stat-card h3 { font-size: 13px; color: #7f8c8d; margin-bottom: 10px; text-transform: uppercase; }
+        .stat-card p { font-size: 24px; font-weight: bold; color: #2c3e50; }
+        .stat-card .desc { font-size: 12px; color: #95a5a6; margin-top: 5px; }
+        
+        .status-badge-container { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .status-box { background: #fff; border: 1px solid #ddd; padding: 15px; border-radius: 6px; text-align: center; flex: 1; min-width: 100px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .status-box .count { font-size: 22px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;}
+        .status-box .label { font-size: 11px; color: #7f8c8d; text-transform: uppercase; font-weight: bold; }
+
+        /* --- STYLES TABEL & MODAL --- */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; min-width: 800px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; vertical-align: middle; }
+        th { background-color: #f8f9fa; color: #333; font-weight: 600; }
+        tr:hover { background-color: #f1f2f6; }
+        .badge { padding: 5px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; display: inline-block; }
+        .bg-secondary { background-color: #95a5a6; } .bg-warning { background-color: #f39c12; } .bg-info { background-color: #3498db; } .bg-success { background-color: #2ecc71; } .bg-danger { background-color: #e74c3c; } .bg-dark { background-color: #34495e; }
+
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: flex-start; padding-top: 50px; overflow-y: auto; }
+        .modal-content { background-color: #fff; width: 90%; max-width: 850px; padding: 25px; border-radius: 8px; position: relative; margin-bottom: 50px; }
+        .modal-sm { max-width: 450px; }
+        .close-modal { position: absolute; right: 20px; top: 15px; font-size: 24px; font-weight: bold; cursor: pointer; color: #aaa; }
+        .close-modal:hover { color: #333; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .item-container { background: #f8f9fa; padding: 15px; border: 1px solid #e9ecef; border-radius: 5px; margin-bottom: 15px; }
+        .form-grid-item { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        
+        #btn-reset-data { background-color: transparent; border: none; color: #e74c3c; cursor: pointer; text-decoration: underline; font-size: 11px; margin-top: 15px; }
+        
+        .dash-table-controls { display: flex; gap: 10px; margin-bottom: 15px; }
+        .dash-table-controls input, .dash-table-controls select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <!-- LAYAR LOADING -->
+    <div class="loading-overlay" id="loadingApp">
+        <div class="spinner"></div>
+        <div id="loadingText">Menghubungkan ke Cloud Database...</div>
+        <div style="font-size: 12px; color: #7f8c8d; margin-top: 10px; font-weight: normal;">Mohon tunggu sebentar</div>
+    </div>
+
+    <!-- HALAMAN LOGIN -->
+    <div class="login-page" id="loginPage">
+        <div class="login-box">
+            <h2>Sistem Pengadaan</h2>
+            <p><strong>Asesor:</strong> asesor/123<br><strong>Admin:</strong> admin/123<br><strong>Pemohon:</strong> pemohon/123</p>
+            <form id="formLogin">
+                <div class="input-group"><label>Username</label><input type="text" id="user" required></div>
+                <div class="input-group"><label>Password</label><input type="password" id="pass" required></div>
+                <button type="submit" class="btn-primary">Login</button>
+                <div id="error-msg" style="color:red; margin-top:10px; font-size:13px;"></div>
+            </form>
+            <button id="btn-reset-data" onclick="resetSemuaData()">Hapus & Reset Semua Data di Cloud</button>
+        </div>
+    </div>
+
+    <!-- HALAMAN DASHBOARD UTAMA -->
+    <div class="main-dashboard" id="dashboardPage">
+        <header>
+            <div class="app-title">Dashboard Pengadaan</div>
+            <div class="profile-section">
+                <div><span id="displayNama">Nama User</span><span class="role-badge" id="displayRole">Role</span></div>
+                <div class="profile-pic" id="displayInisial">U</div>
+            </div>
+        </header>
+
+        <aside>
+            <ul class="menu-list">
+                <li onclick="switchMenu('dashboard')" class="active" id="menu-dashboard">Dashboard</li>
+                <li onclick="switchMenu('pengajuan')" id="menu-pengajuan">Pengajuan</li>
+                <li onclick="switchMenu('proses')" id="menu-proses">Proses</li>
+                <li onclick="switchMenu('serah-terima')" id="menu-serah-terima">Serah Terima</li>
+                <li onclick="switchMenu('database')" id="menu-database">Database</li>
+                <li onclick="logoutSistem()" style="color: #e74c3c; border-top: 1px solid #34495e; margin-top: 10px;">Logout</li>
+            </ul>
+        </aside>
+
+        <main>
+            <!-- Konten Dashboard -->
+            <div id="content-dashboard" class="page-content active">
+                
+                <h2 style="margin-bottom: 15px; color:#2c3e50; font-size:18px;">Ringkasan Data Global</h2>
+                <div class="filter-panel" id="panelFilter">
+                    <div class="input-group"><label>Dari Tanggal</label><input type="date" id="filterStart" onchange="updateDashboard()"></div>
+                    <div class="input-group"><label>Sampai Tanggal</label><input type="date" id="filterEnd" onchange="updateDashboard()"></div>
+                    <div class="input-group"><label>Filter Bidang</label><select id="filterBidang" onchange="updateDashboard()"><option value="">Semua Bidang</option></select></div>
+                    <div class="input-group"><label>Filter Pemohon</label><select id="filterPemohon" onchange="updateDashboard()"><option value="">Semua Pemohon</option></select></div>
+                    <button class="btn-primary" onclick="resetFilter()" style="margin-bottom: 2px;">Reset</button>
+                </div>
+                
+                <!-- Statistik Utama -->
+                <div class="stats-grid" id="mainStatsGrid">
+                    <div class="stat-card" style="border-left-color: #3498db;">
+                        <h3>Total Item Diajukan</h3><p id="dashTotalItem">0</p><div class="desc">Sesuai data Anda/Filter</div>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #9b59b6;">
+                        <h3>Total Biaya Belanja</h3><p id="dashTotalBiaya">Rp 0</p><div class="desc">Akumulasi uang barang (Siap/Selesai)</div>
+                    </div>
+                    <div class="stat-card" id="card-avg-time" style="border-left-color: #f39c12;">
+                        <h3>Rata-Rata Waktu</h3><p id="dashAvgTime">0 Hari</p><div class="desc">Durasi pengajuan s/d BAST</div>
+                    </div>
+                    <div class="stat-card" id="card-target" style="border-left-color: #2ecc71;">
+                        <h3>Target Cepat (< 3 Hari)</h3><p id="dashTarget">0%</p><div class="desc" id="dashTargetDesc">0 dari 0 Selesai tepat waktu</div>
+                    </div>
+                </div>
+
+                <!-- Statistik Status -->
+                <h2 style="margin-bottom: 15px; color:#2c3e50; font-size:16px;">Statistik Status Pengajuan</h2>
+                <div class="status-badge-container">
+                    <div class="status-box"><div class="count" id="cPengajuan">0</div><div class="label">Pengajuan</div></div>
+                    <div class="status-box" style="border-bottom: 4px solid #f39c12;"><div class="count" id="cPending">0</div><div class="label">Pending</div></div>
+                    <div class="status-box" style="border-bottom: 4px solid #3498db;"><div class="count" id="cDisetujui">0</div><div class="label">Disetujui</div></div>
+                    <div class="status-box" style="border-bottom: 4px solid #f39c12;"><div class="count" id="cProses">0</div><div class="label">Proses Belanja</div></div>
+                    <div class="status-box" style="border-bottom: 4px solid #2ecc71;"><div class="count" id="cSiap">0</div><div class="label">Siap</div></div>
+                    <div class="status-box" style="border-bottom: 4px solid #34495e;"><div class="count" id="cSelesai">0</div><div class="label">Selesai</div></div>
+                    <div class="status-box" style="border-bottom: 4px solid #e74c3c;"><div class="count" id="cDitolak">0</div><div class="label">Ditolak</div></div>
+                </div>
+
+                <!-- Tabel Semua Pengajuan & Pencarian -->
+                <div class="card" style="border-top: 4px solid #3498db;">
+                    <h2 style="font-size:16px; margin-bottom: 15px; color:#2c3e50;">Pencarian & Semua Data Pengajuan</h2>
+                    <div class="dash-table-controls">
+                        <input type="text" id="dashSearchInput" placeholder="Cari ID Item atau Nama Barang..." onkeyup="renderDashTableAll()" style="flex: 1;">
+                        <select id="dashFilterStatus" onchange="renderDashTableAll()">
+                            <option value="">Semua Status</option>
+                            <option value="Pengajuan">Pengajuan</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Disetujui">Disetujui</option>
+                            <option value="Proses Belanja">Proses Belanja</option>
+                            <option value="Siap">Siap</option>
+                            <option value="Selesai">Selesai</option>
+                            <option value="Ditolak">Ditolak</option>
+                        </select>
+                        <select id="dashFilterBidangKhusus" onchange="renderDashTableAll()">
+                            <option value="">Semua Bidang</option>
+                        </select>
+                    </div>
+                    <table id="tableDashAll">
+                        <thead><tr><th>ID Item</th><th>Pemohon (Bidang)</th><th>Barang</th><th>Tgl Masuk</th><th>Status</th><th>Keterangan</th></tr></thead>
+                        <tbody id="bodyTableDashAll"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- MENU PENGAJUAN -->
+            <div id="content-pengajuan" class="page-content">
+                <div class="card">
+                    <div class="header-flex"><h2>Daftar Detail Pengajuan Baru</h2><button class="btn-success" onclick="bukaModalPengajuan()">+ Tambah Pengajuan</button></div>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Item dengan status <b>Pending</b> akan tetap berada di tabel ini menunggu persetujuan akhir dari Asesor.</p>
+                    <table id="tabelDataPengajuan">
+                        <thead><tr><th>ID Item</th><th>Pemohon (Bidang)</th><th>Barang & Qty</th><th>Tgl Masuk</th><th>Total Budget</th><th>Status</th><th>Aksi</th></tr></thead>
+                        <tbody id="bodyTabelPengajuan"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- MENU PROSES -->
+            <div id="content-proses" class="page-content">
+                <div class="card">
+                    <h2>Antrean Proses Belanja</h2>
+                    <table>
+                        <thead><tr><th>ID Item</th><th>Pemohon</th><th>Barang</th><th>Qty</th><th>Total Budget</th><th>Status</th><th>Aksi</th></tr></thead>
+                        <tbody id="bodyTabelProses"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- MENU SERAH TERIMA -->
+            <div id="content-serah-terima" class="page-content">
+                <div class="card">
+                    <div class="header-flex"><h2>Barang Siap Serah Terima</h2><button class="btn-primary" onclick="siapkanBAST()" style="width:auto;">Buat Berita Acara (BAST)</button></div>
+                    <table>
+                        <thead><tr><th style="width: 40px;">Pilih</th><th>ID Item</th><th>Pemohon</th><th>Barang</th><th>Qty</th><th>Harga Aktual Total</th><th>Status</th></tr></thead>
+                        <tbody id="bodyTabelSerahTerima"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- MENU DATABASE -->
+            <div id="content-database" class="page-content">
+                <div class="card" id="card-manajemen-user">
+                    <div class="header-flex"><h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 0;">Manajemen Pengguna / Akun</h2><button class="btn-success" onclick="bukaModalUser()">+ Tambah Pengguna</button></div>
+                    <table><thead><tr><th>Nama Lengkap & NIPY</th><th>Jabatan & Bidang</th><th>Username</th><th>Role</th><th>Aksi</th></tr></thead><tbody id="bodyTabelUser"></tbody></table>
+                </div>
+                <div class="card"><h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Histori Berita Acara Serah Terima (BAST)</h2>
+                    <table><thead><tr><th>ID BAST</th><th>Nomor Surat</th><th>Judul</th><th>Tanggal</th><th>Total Item</th><th>Download</th><th>Aksi</th></tr></thead><tbody id="bodyTabelBAST"></tbody></table>
+                </div>
+                <div class="card"><h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Histori Item (Selesai & Ditolak)</h2>
+                    <table><thead><tr><th>ID Item</th><th>Pemohon (Bidang)</th><th>Barang</th><th>Qty</th><th>Total Biaya</th><th>Status Akhir</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="bodyTabelHistoriItem"></tbody></table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL ALASAN PENDING / TOLAK -->
+    <div id="modalAlasan" class="modal">
+        <div class="modal-content modal-sm">
+            <span class="close-modal" onclick="tutupModalAlasan()">&times;</span>
+            <h3 id="titleModalAlasan">Input Keterangan / Alasan</h3>
+            <form id="formAlasan" style="margin-top:15px;">
+                <input type="hidden" id="alasanItemIdx">
+                <input type="hidden" id="alasanTargetStatus">
+                <div class="input-group">
+                    <label>Tuliskan alasan atau keterangan lengkap:</label>
+                    <textarea id="inputAlasan" required rows="4" placeholder="Contoh: Budget terlalu besar, harap spesifikasi diturunkan..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 10px;">Simpan Status & Alasan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT DATA PENGAJUAN (AKTIF) -->
+    <div id="modalEditPengajuan" class="modal">
+        <div class="modal-content modal-sm">
+            <span class="close-modal" onclick="tutupModalEditPengajuan()">&times;</span>
+            <h3>Edit Detail Pengajuan</h3>
+            <form id="formEditPengajuan" style="margin-top:15px;">
+                <input type="hidden" id="epIdx">
+                <div class="input-group"><label>Nama Barang</label><input type="text" id="epNama" required></div>
+                <div class="input-group"><label>Spesifikasi</label><input type="text" id="epSpek"></div>
+                <div class="form-grid-2">
+                    <div class="input-group"><label>Qty</label><input type="number" id="epQty" required></div>
+                    <div class="input-group"><label>Satuan</label><input type="text" id="epSatuan" required></div>
+                </div>
+                <div class="input-group"><label>Total Budget (Rp)</label><input type="number" id="epBudget" required></div>
+                <div class="input-group"><label>Kegunaan</label><input type="text" id="epGuna" required></div>
+                <button type="submit" class="btn-warning" style="width: 100%; padding: 10px; font-weight:bold;">Update Pengajuan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL TAMBAH USER -->
+    <div id="modalUser" class="modal">
+        <div class="modal-content modal-sm">
+            <span class="close-modal" onclick="tutupModalUser()">&times;</span>
+            <h3>Form Tambah Pengguna Baru</h3>
+            <form id="formInputUser" style="margin-top:15px;">
+                <div class="input-group"><label>Nama Lengkap</label><input type="text" id="uNama" required></div>
+                <div class="form-grid-2">
+                    <div class="input-group"><label>NIPY</label><input type="text" id="uNipy" required></div>
+                    <div class="input-group"><label>Jabatan</label><input type="text" id="uJabatan" required></div>
+                </div>
+                <div class="input-group"><label>Bidang / Dept</label><input type="text" id="uBidang" required></div>
+                <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+                <div class="form-grid-2">
+                    <div class="input-group"><label>Username Login</label><input type="text" id="uUser" required></div>
+                    <div class="input-group"><label>Password</label><input type="text" id="uPass" required></div>
+                </div>
+                <div class="input-group">
+                    <label>Jenis User</label>
+                    <select id="uRole" required><option value="pemohon">Pemohon</option><option value="admin">Admin</option><option value="asesor">Asesor</option></select>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 10px;">Simpan Pengguna</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT USER -->
+    <div id="modalEditUser" class="modal">
+        <div class="modal-content modal-sm">
+            <span class="close-modal" onclick="tutupModalEditUser()">&times;</span>
+            <h3>Edit Pengguna</h3>
+            <form id="formEditUser" style="margin-top:15px;">
+                <input type="hidden" id="euIdx">
+                <div class="input-group"><label>Nama Lengkap</label><input type="text" id="euNama" required></div>
+                <div class="form-grid-2">
+                    <div class="input-group"><label>NIPY</label><input type="text" id="euNipy" required></div>
+                    <div class="input-group"><label>Jabatan</label><input type="text" id="euJabatan" required></div>
+                </div>
+                <div class="input-group"><label>Bidang / Dept</label><input type="text" id="euBidang" required></div>
+                <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+                <div class="form-grid-2">
+                    <div class="input-group"><label>Username Login</label><input type="text" id="euUser" required></div>
+                    <div class="input-group"><label>Password</label><input type="text" id="euPass" required></div>
+                </div>
+                <div class="input-group">
+                    <label>Jenis User</label>
+                    <select id="euRole" required>
+                        <option value="pemohon">Pemohon</option>
+                        <option value="admin">Admin</option>
+                        <option value="asesor">Asesor</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-warning" style="width: 100%; padding: 10px; font-weight:bold;">Update Pengguna</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL PENGAJUAN (INPUT BARU) -->
+    <div id="modalPengajuan" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="tutupModalPengajuan()">&times;</span>
+            <h3 style="margin-bottom: 20px;">Form Tambah Pengajuan (Maks 7 Barang)</h3>
+            <form id="formInputPengajuan">
+                <div class="form-grid-3">
+                    <div class="input-group"><label>Nama Pemohon</label><input type="text" id="inputPemohon" required></div>
+                    <div class="input-group"><label>Bidang / Dept</label><input type="text" id="inputBidang" required></div>
+                    <div class="input-group"><label>Tanggal Pengajuan</label><input type="date" id="inputTanggal" required></div>
+                </div>
+                <div id="daftarBarangContainer"></div>
+                <button type="button" class="btn-warning" id="btnTambahBarang" onclick="tambahBarang()" style="margin-bottom: 15px;">+ Tambah Barang</button>
+                <div style="text-align: right;"><button type="submit" class="btn-primary" style="width: auto;">Simpan Pengajuan</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL HARGA AKTUAL -->
+    <div id="modalHarga" class="modal">
+        <div class="modal-content modal-sm">
+            <span class="close-modal" onclick="tutupModalHarga()">&times;</span>
+            <h3>Input Harga Aktual</h3>
+            <form id="formHargaAktual" style="margin-top:15px;">
+                <input type="hidden" id="indexItemAktif">
+                <div class="input-group"><label>Harga Aktual Total (Rp)</label><input type="number" id="hargaTotal" required oninput="hitungHargaSatuan()"></div>
+                <div class="input-group"><label>Harga Aktual Satuan (Otomatis)</label><input type="number" id="hargaSatuan" readonly></div>
+                <button type="submit" class="btn-success" style="width: 100%; padding: 10px;">Simpan & Tandai Siap</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL BAST -->
+    <div id="modalBAST" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="tutupModalBAST()">&times;</span>
+            <h3 style="margin-bottom: 15px;" id="bastModalTitle">Pembuatan Berita Acara Serah Terima</h3>
+            <form id="formBAST">
+                <input type="hidden" id="bastMode" value="create">
+                <input type="hidden" id="bastEditId" value="">
+                <div class="input-group"><label>Judul Berita Acara</label><input type="text" id="bastJudul" required></div>
+                <div class="form-grid-2">
+                    <div class="input-group"><label>Nomor Surat (Otomatis)</label><input type="text" id="bastNoSurat" required readonly></div>
+                    <div class="input-group"><label>Tanggal BAST</label><input type="date" id="bastTanggal" required></div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="item-container"><h4>Pihak Pertama</h4><div class="input-group"><label>Nama</label><input type="text" id="p1Nama" required></div><div class="input-group"><label>Jabatan</label><input type="text" id="p1Jabatan" required></div></div>
+                    <div class="item-container"><h4>Pihak Kedua</h4><div class="input-group"><label>Nama</label><input type="text" id="p2Nama" required></div><div class="input-group"><label>Jabatan</label><input type="text" id="p2Jabatan" required></div></div>
+                </div>
+                <div class="input-group"><label>Tembusan</label><textarea id="bastTembusan" rows="2"></textarea></div>
+                <div style="text-align: right; margin-top: 10px;"><button type="submit" class="btn-primary" style="width: auto;">Simpan Berita Acara</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT ITEM HISTORI (UNTUK ADMIN/ASESOR DI MENU DATABASE) -->
+    <div id="modalEditItem" class="modal">
+        <div class="modal-content modal-sm">
+            <span class="close-modal" onclick="tutupModalEditItem()">&times;</span>
+            <h3>Edit Histori Item</h3>
+            <form id="formEditItem" style="margin-top:15px;">
+                <input type="hidden" id="editItemIdx">
+                <div class="input-group"><label>Bidang</label><input type="text" id="eBidang" required></div>
+                <div class="input-group"><label>Nama Barang</label><input type="text" id="eNama" required></div>
+                <div class="form-grid-2">
+                    <div class="input-group"><label>Qty</label><input type="number" id="eQty" required></div>
+                    <div class="input-group"><label>Satuan</label><input type="text" id="eSatuan" required></div>
+                </div>
+                <div class="input-group"><label>Total Biaya (Rp)</label><input type="number" id="eBiaya" required></div>
+                <div class="input-group">
+                    <label>Status Akhir</label>
+                    <select id="eStatus"><option value="Selesai">Selesai</option><option value="Ditolak">Ditolak</option></select>
+                </div>
+                <button type="submit" class="btn-warning" style="width: 100%; padding: 10px; font-weight:bold;">Update Data Item</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+        
+        // ==========================================================
+        // GANTI LINK DI BAWAH INI DENGAN LINK WEB API GOOGLE APP SCRIPT-MU!
+        // ==========================================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbyj0uOzfCCpguTdTtM1n8D02LWE9c1ObTzhu-RsJdW_SXaX6Fqv1Bg0I_si4bYSt5sc/exec"; 
+        
+        let sysUsers = [];
+        let dataItems = [];
+        let dataBAST = []; 
+        let idPengajuanGroup = 1; 
+        let idItemCounter = 1; 
+        let idBastCounter = 1;
+        
+        // Cek apakah device ini sudah pernah login sebelumnya
+        let activeUser = JSON.parse(localStorage.getItem('loggedInUser')) || null; 
+        let selectedItemsForBAST = [];
+
+        // --- FUNGSI MENGAMBIL DATA DARI GOOGLE SHEETS (CLOUD) ---
+        async function loadDataFromCloud() {
+            try {
+                if (API_URL === "https://script.google.com/macros/s/AKfycbyj0uOzfCCpguTdTtM1n8D02LWE9c1ObTzhu-RsJdW_SXaX6Fqv1Bg0I_si4bYSt5sc/exec") {
+                    throw new Error("URL API Belum Diganti!");
+                }
+
+                const response = await fetch(API_URL);
+                const cloudData = await response.json();
+                
+                // Jika database kosong, gunakan default
+                if(Object.keys(cloudData).length === 0) {
+                    sysUsers = [
+                        { user: 'asesor', pass: '123', role: 'asesor', nama: 'Bapak Asesor', nipy: '11111', jabatan: 'Ketua Yayasan', bidang: 'Manajemen' },
+                        { user: 'admin', pass: '123', role: 'admin', nama: 'Bapak Admin', nipy: '22222', jabatan: 'Staff Logistik', bidang: 'Logistik' },
+                        { user: 'pemohon', pass: '123', role: 'pemohon', nama: 'Bagus Setiawan', nipy: '33333', jabatan: 'Staff IT', bidang: 'IT Support' }
+                    ];
+                    saveData(); // Langsung kirim default ini ke Cloud
+                } else {
+                    sysUsers = cloudData.sysUsers || [];
+                    dataItems = cloudData.dataItems || [];
+                    dataBAST = cloudData.dataBAST || [];
+                    idPengajuanGroup = cloudData.idPengajuanGroup || 1;
+                    idItemCounter = cloudData.idItemCounter || 1;
+                    idBastCounter = cloudData.idBastCounter || 1;
+                }
+
+                // Matikan layar loading, tampilkan login page / auto login
+                document.getElementById('loadingApp').style.display = 'none';
+                document.body.style.overflow = 'auto'; // Kembalikan scroll
+
+                // Logika Auto Login (Jika sudah punya sesi)
+                if(activeUser) {
+                    // Update detail akun dari cloud (barangkali diedit oleh admin)
+                    let updatedUser = sysUsers.find(u => u.user === activeUser.user);
+                    if(updatedUser) {
+                        activeUser = updatedUser;
+                        localStorage.setItem('loggedInUser', JSON.stringify(activeUser));
+                    }
+                    
+                    document.getElementById('displayNama').textContent = activeUser.nama; 
+                    document.getElementById('displayRole').textContent = activeUser.role.toUpperCase(); 
+                    document.getElementById('displayInisial').textContent = activeUser.nama.charAt(0);
+                    document.getElementById('loginPage').style.display = 'none'; 
+                    document.getElementById('dashboardPage').style.display = 'grid';
+                    applyRolePermissions(); 
+                    renderTables(); 
+                } else {
+                    // Tampilkan form login jika belum login
+                    document.getElementById('loginPage').style.display = 'flex';
+                }
+
+            } catch (error) {
+                console.error(error);
+                if(error.message === "URL API Belum Diganti!") {
+                    document.getElementById('loadingText').innerHTML = "<span style='color:#e74c3c;'>ERROR: URL API Belum Diganti di dalam kode HTML.</span>";
+                } else {
+                    document.getElementById('loadingText').innerHTML = "<span style='color:#e74c3c;'>Gagal terhubung ke Database Cloud. Periksa URL API.</span>";
+                }
+                document.querySelector('.spinner').style.display = 'none';
+            }
+        }
+
+        // --- FUNGSI MENYIMPAN KE GOOGLE SHEETS (CLOUD) ---
+        function saveToCloud(keyName, valueData) {
+            if (API_URL === "https://script.google.com/macros/s/AKfycbyj0uOzfCCpguTdTtM1n8D02LWE9c1ObTzhu-RsJdW_SXaX6Fqv1Bg0I_si4bYSt5sc/exec") return;
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'save', key: keyName, value: valueData })
+            }).catch(e => console.error("Gagal menyimpan ke cloud: ", e));
+        }
+
+        // Pengganti fungsi saveData() lama
+        function saveData() {
+            saveToCloud('sysUsers', sysUsers);
+            saveToCloud('dataItems', dataItems);
+            saveToCloud('dataBAST', dataBAST);
+            saveToCloud('idPengajuanGroup', idPengajuanGroup);
+            saveToCloud('idItemCounter', idItemCounter);
+            saveToCloud('idBastCounter', idBastCounter);
+        }
+
+        // Fungsi Reset Database
+        function resetSemuaData() { 
+            if(confirm('Hapus SELURUH data sistem di CLOUD DATABASE?')) { 
+                localStorage.clear();
+                saveToCloud('sysUsers', []); saveToCloud('dataItems', []); saveToCloud('dataBAST', []);
+                saveToCloud('idPengajuanGroup', 1); saveToCloud('idItemCounter', 1); saveToCloud('idBastCounter', 1);
+                
+                document.getElementById('loadingApp').style.display = 'flex';
+                document.getElementById('loadingText').innerText = 'Mereset Database Cloud...';
+                document.querySelector('.spinner').style.display = 'block';
+                
+                setTimeout(() => location.reload(), 2500); 
+            } 
+        }
+
+        function logoutSistem() { localStorage.removeItem('loggedInUser'); location.reload(); }
+
+        // --- MULAI SISTEM ---
+        // Panggil fungsi tarik data cloud ketika script dimuat
+        loadDataFromCloud();
+
+
+        // =======================================================================
+        // DI BAWAH INI ADALAH LOGIKA APLIKASI UTAMA (TIDAK ADA YANG BERUBAH)
+        // =======================================================================
+
+        // --- LOGIN & ROLE LOGIC ---
+        document.getElementById('formLogin').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('user').value; const p = document.getElementById('pass').value;
+            const found = sysUsers.find(x => x.user === u && x.pass === p);
+            
+            if (found) {
+                activeUser = found;
+                localStorage.setItem('loggedInUser', JSON.stringify(found));
+                document.getElementById('displayNama').textContent = found.nama; document.getElementById('displayRole').textContent = found.role.toUpperCase(); document.getElementById('displayInisial').textContent = found.nama.charAt(0);
+                document.getElementById('loginPage').style.display = 'none'; document.getElementById('dashboardPage').style.display = 'grid';
+                applyRolePermissions(); renderTables(); 
+            } else { document.getElementById('error-msg').textContent = "Username/Password tidak valid!"; }
+        });
+
+        function applyRolePermissions() {
+            document.getElementById('menu-proses').style.display = 'block'; document.getElementById('menu-serah-terima').style.display = 'block'; document.getElementById('menu-database').style.display = 'block'; document.getElementById('panelFilter').style.display = 'grid';
+            
+            if (activeUser.role === 'asesor') document.getElementById('card-manajemen-user').style.display = 'block'; else document.getElementById('card-manajemen-user').style.display = 'none';
+            
+            if (activeUser.role === 'pemohon') {
+                document.getElementById('menu-proses').style.display = 'none'; document.getElementById('menu-serah-terima').style.display = 'none'; document.getElementById('menu-database').style.display = 'none'; document.getElementById('panelFilter').style.display = 'none';
+                
+                document.getElementById('dashFilterBidangKhusus').style.display = 'none'; 
+                document.getElementById('card-avg-time').style.display = 'none';
+                document.getElementById('card-target').style.display = 'none';
+                document.getElementById('mainStatsGrid').style.gridTemplateColumns = 'repeat(2, 1fr)';
+            } else {
+                document.getElementById('dashFilterBidangKhusus').style.display = 'inline-block';
+                document.getElementById('card-avg-time').style.display = 'block';
+                document.getElementById('card-target').style.display = 'block';
+                document.getElementById('mainStatsGrid').style.gridTemplateColumns = 'repeat(4, 1fr)';
+            }
+        }
+
+        function switchMenu(m) {
+            document.querySelectorAll('.menu-list li').forEach(l => l.classList.remove('active')); document.querySelectorAll('.page-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('menu-'+m).classList.add('active'); document.getElementById('content-'+m).classList.add('active');
+            if(m === 'dashboard') updateDashboard();
+        }
+
+        // --- MANAJEMEN USER ---
+        function bukaModalUser() { document.getElementById('modalUser').style.display = "flex"; }
+        function tutupModalUser() { document.getElementById('modalUser').style.display = "none"; document.getElementById('formInputUser').reset(); }
+        
+        document.getElementById('formInputUser').addEventListener('submit', (e) => {
+            e.preventDefault(); const usr = document.getElementById('uUser').value;
+            if (sysUsers.find(u => u.user === usr)) return alert("Username sudah digunakan!");
+            sysUsers.push({ nama: document.getElementById('uNama').value, nipy: document.getElementById('uNipy').value, jabatan: document.getElementById('uJabatan').value, bidang: document.getElementById('uBidang').value, user: usr, pass: document.getElementById('uPass').value, role: document.getElementById('uRole').value });
+            saveData(); alert("Pengguna berhasil ditambahkan!"); tutupModalUser(); renderTables();
+        });
+
+        function hapusUser(idx) { if(confirm('Hapus pengguna ini?')) { sysUsers.splice(idx, 1); saveData(); renderTables(); } }
+
+        // --- EDIT USER ---
+        function bukaModalEditUser(idx) {
+            let u = sysUsers[idx];
+            document.getElementById('euIdx').value = idx;
+            document.getElementById('euNama').value = u.nama;
+            document.getElementById('euNipy').value = u.nipy;
+            document.getElementById('euJabatan').value = u.jabatan;
+            document.getElementById('euBidang').value = u.bidang;
+            document.getElementById('euUser').value = u.user;
+            document.getElementById('euPass').value = u.pass;
+            document.getElementById('euRole').value = u.role;
+            document.getElementById('modalEditUser').style.display = 'flex';
+        }
+
+        function tutupModalEditUser() { document.getElementById('modalEditUser').style.display = 'none'; }
+
+        document.getElementById('formEditUser').addEventListener('submit', (e) => {
+            e.preventDefault();
+            let idx = document.getElementById('euIdx').value; let usr = document.getElementById('euUser').value;
+
+            let existingUserIndex = sysUsers.findIndex(u => u.user === usr);
+            if (existingUserIndex !== -1 && existingUserIndex != idx) { return alert("Username tersebut sudah digunakan oleh akun lain!"); }
+
+            sysUsers[idx].nama = document.getElementById('euNama').value; sysUsers[idx].nipy = document.getElementById('euNipy').value; sysUsers[idx].jabatan = document.getElementById('euJabatan').value; sysUsers[idx].bidang = document.getElementById('euBidang').value; sysUsers[idx].user = usr; sysUsers[idx].pass = document.getElementById('euPass').value; sysUsers[idx].role = document.getElementById('euRole').value;
+            saveData();
+
+            if (activeUser.user === sysUsers[idx].user || (activeUser.nama === sysUsers[idx].nama && existingUserIndex == idx)) {
+                activeUser = sysUsers[idx]; localStorage.setItem('loggedInUser', JSON.stringify(activeUser));
+                document.getElementById('displayNama').textContent = activeUser.nama; document.getElementById('displayRole').textContent = activeUser.role.toUpperCase(); document.getElementById('displayInisial').textContent = activeUser.nama.charAt(0);
+            }
+            tutupModalEditUser(); renderTables();
+        });
+
+        // --- MODAL ALASAN (PENDING/TOLAK) ---
+        function mintaAlasan(idx, targetStatus) {
+            document.getElementById('alasanItemIdx').value = idx; document.getElementById('alasanTargetStatus').value = targetStatus; document.getElementById('titleModalAlasan').innerText = `Input Alasan / Keterangan ${targetStatus}`; document.getElementById('inputAlasan').value = ''; document.getElementById('modalAlasan').style.display = 'flex';
+        }
+        function tutupModalAlasan() { document.getElementById('modalAlasan').style.display = 'none'; }
+        document.getElementById('formAlasan').addEventListener('submit', (e) => {
+            e.preventDefault(); let idx = document.getElementById('alasanItemIdx').value; let st = document.getElementById('alasanTargetStatus').value;
+            dataItems[idx].status = st; dataItems[idx].alasan = document.getElementById('inputAlasan').value; saveData(); tutupModalAlasan(); renderTables();
+        });
+
+        // --- EDIT DATA PENGAJUAN (AKTIF) ---
+        function bukaModalEditPengajuan(idx) {
+            let item = dataItems[idx];
+            document.getElementById('epIdx').value = idx; document.getElementById('epNama').value = item.nama; document.getElementById('epSpek').value = item.spek || ''; document.getElementById('epQty').value = item.qty; document.getElementById('epSatuan').value = item.satuan; document.getElementById('epBudget').value = item.budgetTotal; document.getElementById('epGuna').value = item.guna || '';
+            document.getElementById('modalEditPengajuan').style.display = 'flex';
+        }
+        function tutupModalEditPengajuan() { document.getElementById('modalEditPengajuan').style.display = 'none'; }
+        
+        document.getElementById('formEditPengajuan').addEventListener('submit', function(e) {
+            e.preventDefault(); let idx = document.getElementById('epIdx').value;
+            dataItems[idx].nama = document.getElementById('epNama').value; dataItems[idx].spek = document.getElementById('epSpek').value; dataItems[idx].qty = parseInt(document.getElementById('epQty').value); dataItems[idx].satuan = document.getElementById('epSatuan').value; dataItems[idx].budgetTotal = parseInt(document.getElementById('epBudget').value); dataItems[idx].guna = document.getElementById('epGuna').value;
+            if(dataItems[idx].status === 'Ditolak') { dataItems[idx].status = 'Pengajuan'; dataItems[idx].alasan = ''; }
+            saveData(); tutupModalEditPengajuan(); renderTables();
+        });
+
+        // --- PENGAJUAN (INPUT BARU) ---
+        let jumlahBarang = 0; const maxBarang = 7;
+        function bukaModalPengajuan() { 
+            document.getElementById('modalPengajuan').style.display = "flex"; 
+            if(jumlahBarang===0) tambahBarang(); 
+            if(activeUser.role === 'pemohon') { 
+                document.getElementById('inputPemohon').value = activeUser.nama; document.getElementById('inputBidang').value = activeUser.bidang; document.getElementById('inputPemohon').setAttribute('readonly', true); document.getElementById('inputBidang').setAttribute('readonly', true);
+            } else {
+                document.getElementById('inputPemohon').removeAttribute('readonly'); document.getElementById('inputBidang').removeAttribute('readonly');
+            }
+        }
+        function tutupModalPengajuan() { document.getElementById('modalPengajuan').style.display = "none"; document.getElementById('formInputPengajuan').reset(); document.getElementById('daftarBarangContainer').innerHTML=''; jumlahBarang=0; }
+        function tambahBarang() {
+            if (jumlahBarang >= maxBarang) return; jumlahBarang++;
+            const div = document.createElement('div'); div.classList.add('item-container');
+            div.innerHTML = `<div class="form-grid-item"><input type="text" class="i-nama" placeholder="Nama Barang" required><input type="text" class="i-spek" placeholder="Spek"><input type="number" class="i-jumlah" placeholder="Qty" required><input type="text" class="i-satuan" placeholder="Satuan" required><input type="number" class="i-budget" placeholder="Total Budget (Rp)" required><input type="text" class="i-guna" placeholder="Kegunaan"></div>`;
+            document.getElementById('daftarBarangContainer').appendChild(div);
+        }
+
+        document.getElementById('formInputPengajuan').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const pemohon = document.getElementById('inputPemohon').value; const bidang = document.getElementById('inputBidang').value; const tgl = document.getElementById('inputTanggal').value;
+            const groupId = 'REQ-' + String(idPengajuanGroup).padStart(3, '0');
+            const n=document.querySelectorAll('.i-nama'), s=document.querySelectorAll('.i-spek'), j=document.querySelectorAll('.i-jumlah'), st=document.querySelectorAll('.i-satuan'), b=document.querySelectorAll('.i-budget'), g=document.querySelectorAll('.i-guna');
+            
+            for(let i=0; i<n.length; i++) {
+                dataItems.push({ idItem: groupId+'-'+idItemCounter, username: activeUser.user, pemohon: pemohon, bidang: bidang, tgl: tgl, nama: n[i].value, spek: s[i].value, qty: parseInt(j[i].value), satuan: st[i].value, budgetTotal: parseInt(b[i].value), guna: g[i].value, status: 'Pengajuan', hAktualSatuan: 0, hAktualTotal: 0, tglSelesai: null, alasan: '' });
+                idItemCounter++;
+            }
+            idPengajuanGroup++; saveData(); tutupModalPengajuan(); renderTables();
+        });
+
+        // --- HARGA & UBAH STATUS LANGSUNG ---
+        function bukaModalHarga(idx) { document.getElementById('indexItemAktif').value = idx; document.getElementById('hargaTotal').value = dataItems[idx].budgetTotal; hitungHargaSatuan(); document.getElementById('modalHarga').style.display = "flex"; }
+        function tutupModalHarga() { document.getElementById('modalHarga').style.display = "none"; }
+        function hitungHargaSatuan() { let idx = document.getElementById('indexItemAktif').value; let qty = dataItems[idx].qty; document.getElementById('hargaSatuan').value = Math.floor((parseInt(document.getElementById('hargaTotal').value) || 0) / qty); }
+        document.getElementById('formHargaAktual').addEventListener('submit', (e) => {
+            e.preventDefault(); let idx = document.getElementById('indexItemAktif').value; dataItems[idx].hAktualSatuan = parseInt(document.getElementById('hargaSatuan').value); dataItems[idx].hAktualTotal = parseInt(document.getElementById('hargaTotal').value); dataItems[idx].status = 'Siap'; saveData(); tutupModalHarga(); renderTables(); 
+        });
+
+        function ubahStatus(idx, st) { dataItems[idx].status = st; if(st === 'Disetujui') dataItems[idx].alasan = ''; saveData(); renderTables(); }
+
+        // --- EDIT HISTORI ITEM (ADMIN/ASESOR) ---
+        function bukaModalEditItem(idx) { const item = dataItems[idx]; document.getElementById('editItemIdx').value = idx; document.getElementById('eBidang').value = item.bidang; document.getElementById('eNama').value = item.nama; document.getElementById('eQty').value = item.qty; document.getElementById('eSatuan').value = item.satuan; document.getElementById('eBiaya').value = item.status === 'Selesai' ? item.hAktualTotal : item.budgetTotal; document.getElementById('eStatus').value = item.status; document.getElementById('modalEditItem').style.display = "flex"; }
+        function tutupModalEditItem() { document.getElementById('modalEditItem').style.display = "none"; }
+        document.getElementById('formEditItem').addEventListener('submit', function(e){
+            e.preventDefault(); const idx = document.getElementById('editItemIdx').value; dataItems[idx].bidang = document.getElementById('eBidang').value; dataItems[idx].nama = document.getElementById('eNama').value; dataItems[idx].qty = parseInt(document.getElementById('eQty').value); dataItems[idx].satuan = document.getElementById('eSatuan').value; dataItems[idx].status = document.getElementById('eStatus').value;
+            let biaya = parseInt(document.getElementById('eBiaya').value); if(dataItems[idx].status === 'Selesai') dataItems[idx].hAktualTotal = biaya; else dataItems[idx].budgetTotal = biaya; saveData(); tutupModalEditItem(); renderTables();
+        });
+
+        // --- LOGIKA BAST ---
+        function generateNoSurat(dateObj) {
+            const dd = String(dateObj.getDate()).padStart(2, '0'); const romans = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"]; const roman = romans[dateObj.getMonth()]; const yyyy = dateObj.getFullYear(); const dateStr = dateObj.toISOString().split('T')[0];
+            let countToday = 1; dataBAST.forEach(b => { if (b.tanggal === dateStr) countToday++; }); return `${dd}.${countToday}/TU/${roman}/${yyyy}`;
+        }
+        function siapkanBAST() { selectedItemsForBAST = []; document.querySelectorAll('.chk-bast:checked').forEach(chk => selectedItemsForBAST.push(parseInt(chk.value))); if (selectedItemsForBAST.length === 0) return alert("Pilih minimal 1 barang!"); const today = new Date(); document.getElementById('bastTanggal').valueAsDate = today; document.getElementById('bastNoSurat').value = generateNoSurat(today); document.getElementById('bastMode').value = 'create'; document.getElementById('bastModalTitle').textContent = 'Pembuatan Berita Acara Serah Terima'; document.getElementById('modalBAST').style.display = 'flex'; }
+        function tutupModalBAST() { document.getElementById('modalBAST').style.display = 'none'; document.getElementById('formBAST').reset(); }
+        function editBAST(idBast) { const bast = dataBAST.find(b => b.id === idBast); if(!bast) return; document.getElementById('bastMode').value = 'edit'; document.getElementById('bastEditId').value = bast.id; document.getElementById('bastModalTitle').textContent = 'Edit Berita Acara: ' + bast.id; document.getElementById('bastJudul').value = bast.judul; document.getElementById('bastNoSurat').value = bast.noSurat; document.getElementById('bastTanggal').value = bast.tanggal; document.getElementById('p1Nama').value = bast.p1.nama; document.getElementById('p1Jabatan').value = bast.p1.jab; document.getElementById('p2Nama').value = bast.p2.nama; document.getElementById('p2Jabatan').value = bast.p2.jab; document.getElementById('bastTembusan').value = bast.tembusan; document.getElementById('modalBAST').style.display = 'flex'; }
+        function hapusBAST(idBast) { if(confirm('Yakin hapus BAST ini?')) { dataBAST = dataBAST.filter(x => x.id !== idBast); saveData(); renderTables(); } }
+        document.getElementById('formBAST').addEventListener('submit', function(e) {
+            e.preventDefault(); const mode = document.getElementById('bastMode').value; const tglBast = document.getElementById('bastTanggal').value;
+            if (mode === 'create') {
+                dataBAST.push({ id: 'BAST-' + String(idBastCounter).padStart(3, '0'), judul: document.getElementById('bastJudul').value, noSurat: document.getElementById('bastNoSurat').value, tanggal: tglBast, p1: { nama: document.getElementById('p1Nama').value, jab: document.getElementById('p1Jabatan').value }, p2: { nama: document.getElementById('p2Nama').value, jab: document.getElementById('p2Jabatan').value }, tembusan: document.getElementById('bastTembusan').value, itemsIdx: selectedItemsForBAST });
+                idBastCounter++; selectedItemsForBAST.forEach(idx => { dataItems[idx].status = 'Selesai'; dataItems[idx].tglSelesai = tglBast; });
+            } else {
+                const bIndex = dataBAST.findIndex(b => b.id === document.getElementById('bastEditId').value);
+                if(bIndex !== -1) { dataBAST[bIndex].judul = document.getElementById('bastJudul').value; dataBAST[bIndex].tanggal = tglBast; dataBAST[bIndex].p1.nama = document.getElementById('p1Nama').value; dataBAST[bIndex].p1.jab = document.getElementById('p1Jabatan').value; dataBAST[bIndex].p2.nama = document.getElementById('p2Nama').value; dataBAST[bIndex].p2.jab = document.getElementById('p2Jabatan').value; dataBAST[bIndex].tembusan = document.getElementById('bastTembusan').value; }
+            }
+            saveData(); tutupModalBAST(); renderTables(); 
+        });
+
+        // --- DASHBOARD LOGIC ---
+        function updateFilterDropdowns() {
+            if(activeUser.role === 'pemohon') return;
+            const selBidang = document.getElementById('filterBidang'); const selPemohon = document.getElementById('filterPemohon'); const selDashBidang = document.getElementById('dashFilterBidangKhusus');
+            let vB = selBidang.value; let vP = selPemohon.value; let vDB = selDashBidang.value;
+            let arrBidang = [...new Set(dataItems.map(i => i.bidang))]; let arrPemohon = [...new Set(dataItems.map(i => i.pemohon))];
+            
+            let htmlB = '<option value="">Semua Bidang</option>' + arrBidang.map(b => `<option value="${b}">${b}</option>`).join('');
+            selBidang.innerHTML = htmlB; selDashBidang.innerHTML = htmlB;
+            selPemohon.innerHTML = '<option value="">Semua Pemohon</option>' + arrPemohon.map(p => `<option value="${p}">${p}</option>`).join('');
+            
+            selBidang.value = arrBidang.includes(vB) ? vB : ""; selPemohon.value = arrPemohon.includes(vP) ? vP : ""; selDashBidang.value = arrBidang.includes(vDB) ? vDB : "";
+        }
+
+        function resetFilter() { document.getElementById('filterStart').value = ''; document.getElementById('filterEnd').value = ''; document.getElementById('filterBidang').value = ''; document.getElementById('filterPemohon').value = ''; updateDashboard(); }
+
+        function getVisibleDataForGlobalFilter() {
+            let visibleItems = dataItems;
+            if(activeUser.role === 'pemohon') { visibleItems = dataItems.filter(i => i.username === activeUser.user); } else {
+                const start = document.getElementById('filterStart').value; const end = document.getElementById('filterEnd').value; const b = document.getElementById('filterBidang').value; const p = document.getElementById('filterPemohon').value;
+                visibleItems = visibleItems.filter(item => {
+                    let matchDate = true; if (start && end) matchDate = (item.tgl >= start && item.tgl <= end);
+                    let matchBidang = (b === '' || item.bidang === b); let matchPemohon = (p === '' || item.pemohon === p);
+                    return matchDate && matchBidang && matchPemohon;
+                });
+            }
+            return visibleItems;
+        }
+
+        function updateDashboard() {
+            let visibleItems = getVisibleDataForGlobalFilter();
+            let tBiaya = 0; let countSelesai = 0; let sumHari = 0; let countTarget = 0;
+            let counts = { Pengajuan:0, Pending:0, Disetujui:0, Proses:0, Siap:0, Selesai:0, Ditolak:0 };
+
+            visibleItems.forEach(item => {
+                if (item.status === 'Siap' || item.status === 'Selesai') tBiaya += item.hAktualTotal;
+                if (item.status === 'Selesai' && item.tglSelesai) {
+                    countSelesai++;
+                    let diffHari = Math.ceil(Math.abs(new Date(item.tglSelesai) - new Date(item.tgl)) / (1000 * 60 * 60 * 24));
+                    if (diffHari === 0) diffHari = 1; sumHari += diffHari; if (diffHari <= 3) countTarget++;
+                }
+
+                if(item.status === 'Pengajuan') counts.Pengajuan++;
+                if(item.status === 'Pending') counts.Pending++;
+                if(item.status === 'Disetujui') counts.Disetujui++;
+                if(item.status === 'Proses Belanja') counts.Proses++;
+                if(item.status === 'Siap') counts.Siap++;
+                if(item.status === 'Selesai') counts.Selesai++;
+                if(item.status === 'Ditolak') counts.Ditolak++;
+            });
+
+            document.getElementById('dashTotalItem').innerText = visibleItems.length; document.getElementById('dashTotalBiaya').innerText = formatRp(tBiaya);
+            document.getElementById('dashAvgTime').innerText = (countSelesai > 0 ? (sumHari / countSelesai).toFixed(1) : 0) + ' Hari';
+            document.getElementById('dashTarget').innerText = (countSelesai > 0 ? Math.round((countTarget / countSelesai) * 100) : 0) + '%'; document.getElementById('dashTargetDesc').innerText = `${countTarget} dari ${countSelesai} Item selesai < 3 Hari`;
+
+            document.getElementById('cPengajuan').innerText = counts.Pengajuan; document.getElementById('cPending').innerText = counts.Pending; document.getElementById('cDisetujui').innerText = counts.Disetujui; document.getElementById('cProses').innerText = counts.Proses; document.getElementById('cSiap').innerText = counts.Siap; document.getElementById('cSelesai').innerText = counts.Selesai; document.getElementById('cDitolak').innerText = counts.Ditolak;
+
+            renderDashTableAll();
+        }
+
+        function renderDashTableAll() {
+            let baseData = getVisibleDataForGlobalFilter();
+            let kw = document.getElementById('dashSearchInput').value.toLowerCase(); let st = document.getElementById('dashFilterStatus').value; let bd = document.getElementById('dashFilterBidangKhusus').value;
+            let filtered = baseData.filter(i => { let mKw = (kw === '' || i.idItem.toLowerCase().includes(kw) || i.nama.toLowerCase().includes(kw)); let mSt = (st === '' || i.status === st); let mBd = (bd === '' || i.bidang === bd); return mKw && mSt && mBd; });
+
+            const tbody = document.getElementById('bodyTableDashAll'); tbody.innerHTML = '';
+            if(filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Data tidak ditemukan.</td></tr>`; return; }
+
+            filtered.forEach(i => {
+                let cl = 'bg-secondary';
+                if(i.status==='Pending') cl='bg-warning'; if(i.status==='Disetujui') cl='bg-info'; if(i.status==='Proses Belanja') cl='bg-warning';
+                if(i.status==='Siap') cl='bg-success'; if(i.status==='Selesai') cl='bg-dark'; if(i.status==='Ditolak') cl='bg-danger';
+
+                let ket = (i.alasan && i.alasan.trim() !== '') ? i.alasan : '-';
+                tbody.innerHTML += `<tr><td><strong>${i.idItem}</strong></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.nama}</td><td>${i.tgl}</td><td><span class="badge ${cl}">${i.status}</span></td><td style="color:#e74c3c; font-style:italic; font-size:12px; max-width: 200px;">${ket}</td></tr>`;
+            });
+        }
+
+        // --- RENDER TABLES (ALL MENUS) ---
+        function renderTables() {
+            updateFilterDropdowns(); updateDashboard();
+
+            if(activeUser.role === 'asesor') {
+                const tbU = document.getElementById('bodyTabelUser'); tbU.innerHTML = '';
+                sysUsers.forEach((u, idx) => {
+                    let btnHapus = `<button class="btn-danger" onclick="hapusUser(${idx})">Hapus</button>`; let btnEdit = `<button class="btn-warning" onclick="bukaModalEditUser(${idx})">Edit</button>`;
+                    if(u.user === activeUser.user) { btnHapus = `<span style="font-size:11px;color:#7f8c8d; margin-left:5px;">(Akun Anda)</span>`; }
+                    let clRole = u.role === 'asesor' ? 'bg-info' : (u.role === 'admin' ? 'bg-warning' : 'bg-secondary');
+                    tbU.innerHTML += `<tr><td><strong>${u.nama}</strong><br><small>NIPY: ${u.nipy}</small></td><td>${u.jabatan}<br><small>${u.bidang}</small></td><td>${u.user}</td><td><span class="badge ${clRole}">${u.role.toUpperCase()}</span></td><td>${btnEdit} ${btnHapus}</td></tr>`;
+                });
+            }
+
+            const tP=document.getElementById('bodyTabelPengajuan'), tPr=document.getElementById('bodyTabelProses'), tS=document.getElementById('bodyTabelSerahTerima'), tH=document.getElementById('bodyTabelHistoriItem');
+            tP.innerHTML=''; tPr.innerHTML=''; tS.innerHTML=''; tH.innerHTML=''; 
+
+            dataItems.forEach((i, idx) => {
+                if(activeUser.role === 'pemohon' && i.username !== activeUser.user) return;
+
+                let tr = document.createElement('tr');
+                if (i.status === 'Pengajuan' || i.status === 'Pending' || (activeUser.role === 'pemohon' && i.status === 'Ditolak')) {
+                    let actionBtn = '';
+                    if (activeUser.role === 'asesor') {
+                        let btnPending = i.status === 'Pengajuan' ? `<button class="btn-warning" onclick="mintaAlasan(${idx}, 'Pending')">⏳ Pending</button>` : '';
+                        actionBtn = `<button class="btn-success" onclick="ubahStatus(${idx}, 'Disetujui')">✔ Setuju</button> ${btnPending} <button class="btn-danger" onclick="mintaAlasan(${idx}, 'Ditolak')">✖ Tolak</button> <button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`;
+                    } else if (activeUser.role === 'admin') {
+                        actionBtn = `<button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`;
+                    } else if (activeUser.role === 'pemohon') {
+                        if (i.status === 'Pengajuan' || i.status === 'Pending') { actionBtn = `<button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`; } else if (i.status === 'Ditolak') { actionBtn = `<button class="btn-primary" onclick="bukaModalEditPengajuan(${idx})">🔄 Edit & Ajukan Ulang</button>`; }
+                    }
+                    let bClass = i.status === 'Pending' ? 'bg-warning' : (i.status === 'Ditolak' ? 'bg-danger' : 'bg-secondary');
+                    let txtAlasan = (i.status === 'Pending' || i.status === 'Ditolak') ? `<br><span style="color:#e74c3c; font-size:11px; font-style:italic;">Catatan: ${i.alasan}</span>` : '';
+                    tr.innerHTML = `<td><strong>${i.idItem}</strong></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.nama} (${i.qty} ${i.satuan})${txtAlasan}</td><td>${i.tgl}</td><td>${formatRp(i.budgetTotal)}</td><td><span class="badge ${bClass}">${i.status}</span></td><td style="min-width: 120px;">${actionBtn}</td>`; tP.appendChild(tr);
+                
+                } else if (i.status === 'Disetujui' || i.status === 'Proses Belanja') {
+                    if (activeUser.role !== 'pemohon') {
+                        let btn = i.status === 'Disetujui' ? `<button class="btn-warning" onclick="ubahStatus(${idx}, 'Proses Belanja')">Proses</button>` : `<button class="btn-success" onclick="bukaModalHarga(${idx})">Selesai</button>`;
+                        tr.innerHTML = `<td><strong>${i.idItem}</strong></td><td>${i.pemohon}</td><td>${i.nama}</td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.budgetTotal)}</td><td><span class="badge ${i.status==='Disetujui'?'bg-info':'bg-warning'}">${i.status}</span></td><td>${btn}</td>`; tPr.appendChild(tr);
+                    }
+                } else if (i.status === 'Siap') {
+                    if (activeUser.role !== 'pemohon') {
+                        tr.innerHTML = `<td style="text-align:center;"><input type="checkbox" class="chk-bast" value="${idx}"></td><td><strong>${i.idItem}</strong></td><td>${i.pemohon}</td><td>${i.nama}</td><td>${i.qty} ${i.satuan}</td><td><strong>${formatRp(i.hAktualTotal)}</strong></td><td><span class="badge bg-success">Siap</span></td>`; tS.appendChild(tr);
+                    }
+                } else if (i.status === 'Ditolak' || i.status === 'Selesai') {
+                    if (activeUser.role !== 'pemohon') {
+                        let textAlasan = (i.status === 'Ditolak' && i.alasan) ? i.alasan : '-';
+                        tr.innerHTML = `<td><strong>${i.idItem}</strong></td><td>${i.pemohon} (${i.bidang})</td><td>${i.nama}</td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.status === 'Selesai' ? i.hAktualTotal : i.budgetTotal)}</td><td><span class="badge ${i.status==='Selesai'?'bg-dark':'bg-danger'}">${i.status}</span></td><td style="font-size:11px; color:#c0392b;">${textAlasan}</td><td><button class="btn-warning" onclick="bukaModalEditItem(${idx})">Edit</button></td>`; tH.appendChild(tr);
+                    }
+                }
+            });
+
+            if (activeUser.role !== 'pemohon') {
+                document.getElementById('bodyTabelBAST').innerHTML = dataBAST.map(b => `<tr><td><strong>${b.id}</strong></td><td>${b.noSurat}</td><td>${b.judul}</td><td>${b.tanggal}</td><td>${b.itemsIdx.length} Item</td><td><button class="btn-info" onclick="alert('Download PDF Mockup')">PDF</button></td><td><button class="btn-warning" onclick="editBAST('${b.id}')">Edit</button> <button class="btn-danger" onclick="hapusBAST('${b.id}')">Hapus</button></td></tr>`).join('');
+            }
+        }
+    </script>
+</body>
+</html>
