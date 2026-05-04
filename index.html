@@ -9,12 +9,12 @@
         body { background-color: #f0f2f5; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; overflow: hidden; }
 
         /* --- STYLES LOADING --- */
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; color: #2c3e50; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; color: #2c3e50; text-align: center; padding: 20px; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- STYLES LOGIN --- */
-        .login-page { display: none; justify-content: center; align-items: center; width: 100%; height: 100%; }
+        .login-page { display: none; justify-content: center; align-items: center; width: 100%; height: 100%; padding: 20px; }
         .login-box { background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
         .login-box h2 { margin-bottom: 10px; color: #2c3e50; }
         .login-box p { font-size: 13px; color: #7f8c8d; margin-bottom: 20px; line-height: 1.5; }
@@ -34,8 +34,8 @@
         .main-dashboard { display: none; width: 100%; height: 100vh; grid-template-columns: 240px 1fr; grid-template-rows: 60px 1fr; }
         header { grid-column: 1 / 3; background: #fff; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 10; }
         .app-title { font-weight: bold; font-size: 18px; color: #2c3e50; }
-        .profile-section { display: flex; align-items: center; gap: 10px; font-weight: 600; }
-        .profile-pic { width: 35px; height: 35px; background: #2c3e50; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; }
+        .profile-section { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
+        .profile-pic { width: 35px; height: 35px; background: #2c3e50; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; flex-shrink: 0; }
         .role-badge { font-size: 11px; background: #f39c12; color: white; padding: 2px 6px; border-radius: 10px; margin-left: 5px; font-weight: normal; }
 
         aside { background: #2c3e50; color: white; padding-top: 20px; overflow-y: auto; }
@@ -43,10 +43,10 @@
         .menu-list li { padding: 15px 25px; cursor: pointer; border-bottom: 1px solid #34495e; transition: 0.3s; }
         .menu-list li:hover, .menu-list li.active { background: #34495e; padding-left: 30px; font-weight: bold; border-left: 4px solid #f39c12; }
 
-        main { padding: 30px; overflow-y: auto; position: relative; }
+        main { padding: 30px; overflow-y: auto; overflow-x: hidden; position: relative; }
         .page-content { display: none; }
         .page-content.active { display: block; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; overflow-x: auto; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; overflow-x: auto; width: 100%; }
 
         /* --- STYLES DASHBOARD WIDGETS --- */
         .filter-panel { display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 15px; align-items: end; background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -64,26 +64,90 @@
         /* --- STYLES TABEL & MODAL --- */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; min-width: 800px; }
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; vertical-align: middle; }
-        th { background-color: #f8f9fa; color: #333; font-weight: 600; }
+        th { background-color: #f8f9fa; color: #333; font-weight: 600; white-space: nowrap; }
         tr:hover { background-color: #f1f2f6; }
-        .badge { padding: 5px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; display: inline-block; }
+        .badge { padding: 5px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; display: inline-block; white-space: nowrap; }
         .bg-secondary { background-color: #95a5a6; } .bg-warning { background-color: #f39c12; } .bg-info { background-color: #3498db; } .bg-success { background-color: #2ecc71; } .bg-danger { background-color: #e74c3c; } .bg-dark { background-color: #34495e; }
 
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: flex-start; padding-top: 50px; overflow-y: auto; }
-        .modal-content { background-color: #fff; width: 90%; max-width: 850px; padding: 25px; border-radius: 8px; position: relative; margin-bottom: 50px; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: flex-start; padding: 50px 15px; overflow-y: auto; }
+        .modal-content { background-color: #fff; width: 100%; max-width: 850px; padding: 25px; border-radius: 8px; position: relative; margin-bottom: 50px; }
         .modal-sm { max-width: 450px; }
-        .close-modal { position: absolute; right: 20px; top: 15px; font-size: 24px; font-weight: bold; cursor: pointer; color: #aaa; }
+        .close-modal { position: absolute; right: 15px; top: 10px; font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; }
         .close-modal:hover { color: #333; }
-        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
+        .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; }
         .item-container { background: #f8f9fa; padding: 15px; border: 1px solid #e9ecef; border-radius: 5px; margin-bottom: 15px; }
-        .form-grid-item { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .form-grid-item { display: grid; grid-template-columns: 2fr 2fr 1fr 1fr 2fr 2fr; gap: 10px; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         
         #btn-reset-data { background-color: transparent; border: none; color: #e74c3c; cursor: pointer; text-decoration: underline; font-size: 11px; margin-top: 15px; }
         
-        .dash-table-controls { display: flex; gap: 10px; margin-bottom: 15px; }
-        .dash-table-controls input, .dash-table-controls select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; }
+        .dash-table-controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .dash-table-controls input, .dash-table-controls select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; flex: 1; min-width: 150px; }
+
+        /* =======================================================
+           RESPONSIVE DESIGN (MEDIA QUERIES)
+           ======================================================= */
+        
+        /* TABLET & MOBILE KECIL */
+        @media (max-width: 992px) {
+            .filter-panel { grid-template-columns: repeat(2, 1fr); }
+            .filter-panel button { grid-column: 1 / -1; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-grid-item { grid-template-columns: 1fr 1fr; }
+            .form-grid-item .i-nama, .form-grid-item .i-guna { grid-column: 1 / -1; }
+        }
+
+        /* MOBILE (HP) */
+        @media (max-width: 768px) {
+            .main-dashboard {
+                grid-template-columns: 1fr;
+                grid-template-rows: 60px auto 1fr; /* Tambah baris untuk menu horizontal */
+            }
+            
+            header { grid-column: 1; padding: 0 15px; }
+            .app-title { font-size: 16px; }
+            .profile-section { font-size: 12px; }
+            .profile-section span#displayNama { display: none; } /* Sembunyikan nama di header HP, tampilkan inisial & role saja */
+            
+            aside { 
+                grid-column: 1; 
+                padding-top: 0; 
+                overflow-x: auto; /* Bisa scroll ke samping */
+                white-space: nowrap; 
+                background: #2c3e50; 
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+                z-index: 5;
+            }
+            
+            .menu-list { display: flex; }
+            .menu-list li { 
+                padding: 12px 20px; 
+                border-bottom: 0; 
+                border-right: 1px solid #34495e; 
+            }
+            .menu-list li:hover, .menu-list li.active { 
+                padding-left: 20px; /* Reset padding hover */
+                border-left: 0; 
+                border-bottom: 3px solid #f39c12; 
+                background: #34495e; 
+            }
+
+            main { padding: 15px; }
+            .card { padding: 15px; }
+            
+            .filter-panel { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            #mainStatsGrid { grid-template-columns: 1fr !important; } /* Force column on mobile */
+            
+            .form-grid-3, .form-grid-2 { grid-template-columns: 1fr; }
+            .form-grid-item { grid-template-columns: 1fr; }
+            .form-grid-item input { grid-column: 1 !important; }
+
+            .login-box { padding: 30px 20px; }
+            .modal { padding: 20px 10px; }
+            .modal-content { padding: 20px 15px; }
+        }
     </style>
 </head>
 <body>
@@ -127,7 +191,7 @@
                 <li onclick="switchMenu('proses')" id="menu-proses">Proses</li>
                 <li onclick="switchMenu('serah-terima')" id="menu-serah-terima">Serah Terima</li>
                 <li onclick="switchMenu('database')" id="menu-database">Database</li>
-                <li onclick="logoutSistem()" style="color: #e74c3c; border-top: 1px solid #34495e; margin-top: 10px;">Logout</li>
+                <li onclick="logoutSistem()" style="color: #e74c3c; border-right: none;" id="menu-logout">Logout</li>
             </ul>
         </aside>
 
@@ -176,7 +240,7 @@
                 <div class="card" style="border-top: 4px solid #3498db;">
                     <h2 style="font-size:16px; margin-bottom: 15px; color:#2c3e50;">Pencarian & Semua Data Pengajuan</h2>
                     <div class="dash-table-controls">
-                        <input type="text" id="dashSearchInput" placeholder="Cari ID Item atau Nama Barang..." onkeyup="renderDashTableAll()" style="flex: 1;">
+                        <input type="text" id="dashSearchInput" placeholder="Cari ID Item atau Nama Barang..." onkeyup="renderDashTableAll()">
                         <select id="dashFilterStatus" onchange="renderDashTableAll()">
                             <option value="">Semua Status</option>
                             <option value="Pengajuan">Pengajuan</option>
@@ -224,7 +288,7 @@
             <!-- MENU SERAH TERIMA -->
             <div id="content-serah-terima" class="page-content">
                 <div class="card">
-                    <div class="header-flex"><h2>Barang Siap Serah Terima</h2><button class="btn-primary" onclick="siapkanBAST()" style="width:auto;">Buat Berita Acara (BAST)</button></div>
+                    <div class="header-flex"><h2>Barang Siap Serah Terima</h2><button class="btn-primary" onclick="siapkanBAST()" style="width:auto;">Buat BAST</button></div>
                     <table>
                         <thead><tr><th style="width: 40px;">Pilih</th><th>ID Item</th><th>Pemohon</th><th>Barang</th><th>Qty</th><th>Harga Aktual Total</th><th>Status</th></tr></thead>
                         <tbody id="bodyTabelSerahTerima"></tbody>
@@ -235,10 +299,10 @@
             <!-- MENU DATABASE -->
             <div id="content-database" class="page-content">
                 <div class="card" id="card-manajemen-user">
-                    <div class="header-flex"><h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 0;">Manajemen Pengguna / Akun</h2><button class="btn-success" onclick="bukaModalUser()">+ Tambah Pengguna</button></div>
+                    <div class="header-flex"><h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 0;">Manajemen Pengguna</h2><button class="btn-success" onclick="bukaModalUser()">+ Tambah User</button></div>
                     <table><thead><tr><th>Nama Lengkap & NIPY</th><th>Jabatan & Bidang</th><th>Username</th><th>Role</th><th>Aksi</th></tr></thead><tbody id="bodyTabelUser"></tbody></table>
                 </div>
-                <div class="card"><h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Histori Berita Acara Serah Terima (BAST)</h2>
+                <div class="card"><h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Histori BAST</h2>
                     <table><thead><tr><th>ID BAST</th><th>Nomor Surat</th><th>Judul</th><th>Tanggal</th><th>Total Item</th><th>Download</th><th>Aksi</th></tr></thead><tbody id="bodyTabelBAST"></tbody></table>
                 </div>
                 <div class="card"><h2 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Histori Item (Selesai & Ditolak)</h2>
@@ -424,7 +488,7 @@
         const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
         
         // ==========================================================
-        // GANTI LINK DI BAWAH INI DENGAN LINK WEB API GOOGLE APP SCRIPT-MU!
+        // URL API GOOGLE APP SCRIPT
         // ==========================================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyj0uOzfCCpguTdTtM1n8D02LWE9c1ObTzhu-RsJdW_SXaX6Fqv1Bg0I_si4bYSt5sc/exec"; 
         
@@ -438,7 +502,6 @@
         let idItemCounter = 1; 
         let idBastCounter = 1;
         
-        // Cek apakah device ini sudah pernah login sebelumnya
         let activeUser = JSON.parse(localStorage.getItem('loggedInUser')) || null; 
         let selectedItemsForBAST = [];
 
@@ -452,15 +515,14 @@
                 const response = await fetch(API_URL);
                 const cloudData = await response.json();
                 
-                // Jika database kosong, gunakan default
                 if(Object.keys(cloudData).length === 0) {
                     sysUsers = [
-                        akunAuthor, // <-- AKUN AUTHOR PERMANEN
+                        akunAuthor, 
                         { user: 'asesor', pass: '123', role: 'asesor', nama: 'Bapak Asesor', nipy: '11111', jabatan: 'Ketua Yayasan', bidang: 'Manajemen' },
                         { user: 'admin', pass: '123', role: 'admin', nama: 'Bapak Admin', nipy: '22222', jabatan: 'Staff Logistik', bidang: 'Logistik' },
                         { user: 'pemohon', pass: '123', role: 'pemohon', nama: 'Bagus Setiawan', nipy: '33333', jabatan: 'Staff IT', bidang: 'IT Support' }
                     ];
-                    saveData(); // Langsung kirim default ini ke Cloud
+                    saveData(); 
                 } else {
                     sysUsers = cloudData.sysUsers || [];
                     dataItems = cloudData.dataItems || [];
@@ -469,20 +531,16 @@
                     idItemCounter = cloudData.idItemCounter || 1;
                     idBastCounter = cloudData.idBastCounter || 1;
 
-                    // Perlindungan berlapis: Jika entah bagaimana akun author hilang di cloud, paksa kembalikan
                     if(!sysUsers.find(u => u.user === 'author')) {
                         sysUsers.unshift(akunAuthor);
                         saveToCloud('sysUsers', sysUsers);
                     }
                 }
 
-                // Matikan layar loading, tampilkan login page / auto login
                 document.getElementById('loadingApp').style.display = 'none';
-                document.body.style.overflow = 'auto'; // Kembalikan scroll
+                document.body.style.overflow = 'auto'; 
 
-                // Logika Auto Login (Jika sudah punya sesi)
                 if(activeUser) {
-                    // Update detail akun dari cloud (barangkali diedit oleh admin)
                     let updatedUser = sysUsers.find(u => u.user === activeUser.user);
                     if(updatedUser) {
                         activeUser = updatedUser;
@@ -497,7 +555,6 @@
                     applyRolePermissions(); 
                     renderTables(); 
                 } else {
-                    // Tampilkan form login jika belum login
                     document.getElementById('loginPage').style.display = 'flex';
                 }
 
@@ -522,7 +579,6 @@
             }).catch(e => console.error("Gagal menyimpan ke cloud: ", e));
         }
 
-        // Pengganti fungsi saveData() lama
         function saveData() {
             saveToCloud('sysUsers', sysUsers);
             saveToCloud('dataItems', dataItems);
@@ -532,12 +588,9 @@
             saveToCloud('idBastCounter', idBastCounter);
         }
 
-        // Fungsi Reset Database (Dengan Perlindungan Author)
         function resetSemuaData() { 
             if(confirm('Peringatan: Ini akan menghapus SEMUA pengajuan, BAST, dan Akun (Kecuali Akun Author). Lanjutkan reset Cloud Database?')) { 
                 localStorage.clear();
-                
-                // Jangan kirim array kosong untuk user, tapi kirim array yang HANYA BERISI Author
                 saveToCloud('sysUsers', [akunAuthor]); 
                 saveToCloud('dataItems', []); 
                 saveToCloud('dataBAST', []);
@@ -553,16 +606,12 @@
 
         function logoutSistem() { localStorage.removeItem('loggedInUser'); location.reload(); }
 
-        // --- MULAI SISTEM ---
-        // Panggil fungsi tarik data cloud ketika script dimuat
         loadDataFromCloud();
-
 
         // =======================================================================
         // LOGIKA APLIKASI UTAMA
         // =======================================================================
 
-        // --- LOGIN & ROLE LOGIC ---
         document.getElementById('formLogin').addEventListener('submit', (e) => {
             e.preventDefault();
             const u = document.getElementById('user').value; const p = document.getElementById('pass').value;
@@ -588,12 +637,13 @@
                 document.getElementById('dashFilterBidangKhusus').style.display = 'none'; 
                 document.getElementById('card-avg-time').style.display = 'none';
                 document.getElementById('card-target').style.display = 'none';
-                document.getElementById('mainStatsGrid').style.gridTemplateColumns = 'repeat(2, 1fr)';
+                // Reset grid if pemohon, but respect media query logic via CSS mostly.
+                if (window.innerWidth > 768) { document.getElementById('mainStatsGrid').style.gridTemplateColumns = 'repeat(2, 1fr)'; }
             } else {
                 document.getElementById('dashFilterBidangKhusus').style.display = 'inline-block';
                 document.getElementById('card-avg-time').style.display = 'block';
                 document.getElementById('card-target').style.display = 'block';
-                document.getElementById('mainStatsGrid').style.gridTemplateColumns = 'repeat(4, 1fr)';
+                if (window.innerWidth > 768) { document.getElementById('mainStatsGrid').style.gridTemplateColumns = 'repeat(4, 1fr)'; }
             }
         }
 
@@ -603,7 +653,6 @@
             if(m === 'dashboard') updateDashboard();
         }
 
-        // --- MANAJEMEN USER ---
         function bukaModalUser() { document.getElementById('modalUser').style.display = "flex"; }
         function tutupModalUser() { document.getElementById('modalUser').style.display = "none"; document.getElementById('formInputUser').reset(); }
         
@@ -614,23 +663,14 @@
             saveData(); alert("Pengguna berhasil ditambahkan!"); tutupModalUser(); renderTables();
         });
 
-        // FUNGSI HAPUS USER (MENCEGAH PENGHAPUSAN AUTHOR)
         function hapusUser(idx) { 
             if (sysUsers[idx].user === 'author') return alert('Sistem Menolak: Akun permanen Author tidak dapat dihapus!');
             if(confirm('Hapus pengguna ini?')) { sysUsers.splice(idx, 1); saveData(); renderTables(); } 
         }
 
-        // --- EDIT USER ---
         function bukaModalEditUser(idx) {
             let u = sysUsers[idx];
-            document.getElementById('euIdx').value = idx;
-            document.getElementById('euNama').value = u.nama;
-            document.getElementById('euNipy').value = u.nipy;
-            document.getElementById('euJabatan').value = u.jabatan;
-            document.getElementById('euBidang').value = u.bidang;
-            document.getElementById('euUser').value = u.user;
-            document.getElementById('euPass').value = u.pass;
-            document.getElementById('euRole').value = u.role;
+            document.getElementById('euIdx').value = idx; document.getElementById('euNama').value = u.nama; document.getElementById('euNipy').value = u.nipy; document.getElementById('euJabatan').value = u.jabatan; document.getElementById('euBidang').value = u.bidang; document.getElementById('euUser').value = u.user; document.getElementById('euPass').value = u.pass; document.getElementById('euRole').value = u.role;
             document.getElementById('modalEditUser').style.display = 'flex';
         }
 
@@ -640,16 +680,9 @@
             e.preventDefault();
             let idx = document.getElementById('euIdx').value; let usr = document.getElementById('euUser').value;
 
-            // MENCEGAH PERUBAHAN FATAL PADA AKUN AUTHOR
             if (sysUsers[idx].user === 'author') {
-                if (usr !== 'author') {
-                    document.getElementById('euUser').value = 'author';
-                    return alert("Sistem Menolak: Username untuk akun permanen tidak boleh diubah!");
-                }
-                if (document.getElementById('euRole').value !== 'asesor') {
-                    document.getElementById('euRole').value = 'asesor';
-                    return alert("Sistem Menolak: Role untuk akun permanen harus tetap Asesor!");
-                }
+                if (usr !== 'author') { document.getElementById('euUser').value = 'author'; return alert("Sistem Menolak: Username untuk akun permanen tidak boleh diubah!"); }
+                if (document.getElementById('euRole').value !== 'asesor') { document.getElementById('euRole').value = 'asesor'; return alert("Sistem Menolak: Role untuk akun permanen harus tetap Asesor!"); }
             }
 
             let existingUserIndex = sysUsers.findIndex(u => u.user === usr);
@@ -665,7 +698,6 @@
             tutupModalEditUser(); renderTables();
         });
 
-        // --- MODAL ALASAN (PENDING/TOLAK) ---
         function mintaAlasan(idx, targetStatus) {
             document.getElementById('alasanItemIdx').value = idx; document.getElementById('alasanTargetStatus').value = targetStatus; document.getElementById('titleModalAlasan').innerText = `Input Alasan / Keterangan ${targetStatus}`; document.getElementById('inputAlasan').value = ''; document.getElementById('modalAlasan').style.display = 'flex';
         }
@@ -675,7 +707,6 @@
             dataItems[idx].status = st; dataItems[idx].alasan = document.getElementById('inputAlasan').value; saveData(); tutupModalAlasan(); renderTables();
         });
 
-        // --- EDIT DATA PENGAJUAN (AKTIF) ---
         function bukaModalEditPengajuan(idx) {
             let item = dataItems[idx];
             document.getElementById('epIdx').value = idx; document.getElementById('epNama').value = item.nama; document.getElementById('epSpek').value = item.spek || ''; document.getElementById('epQty').value = item.qty; document.getElementById('epSatuan').value = item.satuan; document.getElementById('epBudget').value = item.budgetTotal; document.getElementById('epGuna').value = item.guna || '';
@@ -690,7 +721,6 @@
             saveData(); tutupModalEditPengajuan(); renderTables();
         });
 
-        // --- PENGAJUAN (INPUT BARU) ---
         let jumlahBarang = 0; const maxBarang = 7;
         function bukaModalPengajuan() { 
             document.getElementById('modalPengajuan').style.display = "flex"; 
@@ -722,7 +752,6 @@
             idPengajuanGroup++; saveData(); tutupModalPengajuan(); renderTables();
         });
 
-        // --- HARGA & UBAH STATUS LANGSUNG ---
         function bukaModalHarga(idx) { document.getElementById('indexItemAktif').value = idx; document.getElementById('hargaTotal').value = dataItems[idx].budgetTotal; hitungHargaSatuan(); document.getElementById('modalHarga').style.display = "flex"; }
         function tutupModalHarga() { document.getElementById('modalHarga').style.display = "none"; }
         function hitungHargaSatuan() { let idx = document.getElementById('indexItemAktif').value; let qty = dataItems[idx].qty; document.getElementById('hargaSatuan').value = Math.floor((parseInt(document.getElementById('hargaTotal').value) || 0) / qty); }
@@ -732,7 +761,6 @@
 
         function ubahStatus(idx, st) { dataItems[idx].status = st; if(st === 'Disetujui') dataItems[idx].alasan = ''; saveData(); renderTables(); }
 
-        // --- EDIT HISTORI ITEM (ADMIN/ASESOR) ---
         function bukaModalEditItem(idx) { const item = dataItems[idx]; document.getElementById('editItemIdx').value = idx; document.getElementById('eBidang').value = item.bidang; document.getElementById('eNama').value = item.nama; document.getElementById('eQty').value = item.qty; document.getElementById('eSatuan').value = item.satuan; document.getElementById('eBiaya').value = item.status === 'Selesai' ? item.hAktualTotal : item.budgetTotal; document.getElementById('eStatus').value = item.status; document.getElementById('modalEditItem').style.display = "flex"; }
         function tutupModalEditItem() { document.getElementById('modalEditItem').style.display = "none"; }
         document.getElementById('formEditItem').addEventListener('submit', function(e){
@@ -740,7 +768,6 @@
             let biaya = parseInt(document.getElementById('eBiaya').value); if(dataItems[idx].status === 'Selesai') dataItems[idx].hAktualTotal = biaya; else dataItems[idx].budgetTotal = biaya; saveData(); tutupModalEditItem(); renderTables();
         });
 
-        // --- LOGIKA BAST ---
         function generateNoSurat(dateObj) {
             const dd = String(dateObj.getDate()).padStart(2, '0'); const romans = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"]; const roman = romans[dateObj.getMonth()]; const yyyy = dateObj.getFullYear(); const dateStr = dateObj.toISOString().split('T')[0];
             let countToday = 1; dataBAST.forEach(b => { if (b.tanggal === dateStr) countToday++; }); return `${dd}.${countToday}/TU/${roman}/${yyyy}`;
@@ -761,9 +788,8 @@
             saveData(); tutupModalBAST(); renderTables(); 
         });
 
-        // --- DASHBOARD LOGIC ---
         function updateFilterDropdowns() {
-            if(activeUser.role === 'pemohon') return;
+            if(activeUser && activeUser.role === 'pemohon') return;
             const selBidang = document.getElementById('filterBidang'); const selPemohon = document.getElementById('filterPemohon'); const selDashBidang = document.getElementById('dashFilterBidangKhusus');
             let vB = selBidang.value; let vP = selPemohon.value; let vDB = selDashBidang.value;
             let arrBidang = [...new Set(dataItems.map(i => i.bidang))]; let arrPemohon = [...new Set(dataItems.map(i => i.pemohon))];
@@ -779,7 +805,7 @@
 
         function getVisibleDataForGlobalFilter() {
             let visibleItems = dataItems;
-            if(activeUser.role === 'pemohon') { visibleItems = dataItems.filter(i => i.username === activeUser.user); } else {
+            if(activeUser && activeUser.role === 'pemohon') { visibleItems = dataItems.filter(i => i.username === activeUser.user); } else {
                 const start = document.getElementById('filterStart').value; const end = document.getElementById('filterEnd').value; const b = document.getElementById('filterBidang').value; const p = document.getElementById('filterPemohon').value;
                 visibleItems = visibleItems.filter(item => {
                     let matchDate = true; if (start && end) matchDate = (item.tgl >= start && item.tgl <= end);
@@ -835,21 +861,19 @@
                 if(i.status==='Siap') cl='bg-success'; if(i.status==='Selesai') cl='bg-dark'; if(i.status==='Ditolak') cl='bg-danger';
 
                 let ket = (i.alasan && i.alasan.trim() !== '') ? i.alasan : '-';
-                tbody.innerHTML += `<tr><td><strong>${i.idItem}</strong></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.nama}</td><td>${i.tgl}</td><td><span class="badge ${cl}">${i.status}</span></td><td style="color:#e74c3c; font-style:italic; font-size:12px; max-width: 200px;">${ket}</td></tr>`;
+                tbody.innerHTML += `<tr><td><strong>${i.idItem}</strong></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.nama}</td><td>${i.tgl}</td><td><span class="badge ${cl}">${i.status}</span></td><td style="color:#e74c3c; font-style:italic; font-size:12px; max-width: 200px; white-space:normal;">${ket}</td></tr>`;
             });
         }
 
-        // --- RENDER TABLES (ALL MENUS) ---
         function renderTables() {
             updateFilterDropdowns(); updateDashboard();
 
-            if(activeUser.role === 'asesor') {
+            if(activeUser && activeUser.role === 'asesor') {
                 const tbU = document.getElementById('bodyTabelUser'); tbU.innerHTML = '';
                 sysUsers.forEach((u, idx) => {
                     let btnHapus = `<button class="btn-danger" onclick="hapusUser(${idx})">Hapus</button>`; 
                     let btnEdit = `<button class="btn-warning" onclick="bukaModalEditUser(${idx})">Edit</button>`;
                     
-                    // PERLINDUNGAN TAMPILAN UNTUK AKUN AUTHOR
                     if(u.user === 'author') {
                         btnHapus = `<span style="font-size:11px;color:#e74c3c; margin-left:5px; font-weight:bold;">[PERMANEN]</span>`;
                     } else if(u.user === activeUser.user) { 
@@ -865,41 +889,41 @@
             tP.innerHTML=''; tPr.innerHTML=''; tS.innerHTML=''; tH.innerHTML=''; 
 
             dataItems.forEach((i, idx) => {
-                if(activeUser.role === 'pemohon' && i.username !== activeUser.user) return;
+                if(activeUser && activeUser.role === 'pemohon' && i.username !== activeUser.user) return;
 
                 let tr = document.createElement('tr');
-                if (i.status === 'Pengajuan' || i.status === 'Pending' || (activeUser.role === 'pemohon' && i.status === 'Ditolak')) {
+                if (i.status === 'Pengajuan' || i.status === 'Pending' || (activeUser && activeUser.role === 'pemohon' && i.status === 'Ditolak')) {
                     let actionBtn = '';
-                    if (activeUser.role === 'asesor') {
+                    if (activeUser && activeUser.role === 'asesor') {
                         let btnPending = i.status === 'Pengajuan' ? `<button class="btn-warning" onclick="mintaAlasan(${idx}, 'Pending')">⏳ Pending</button>` : '';
                         actionBtn = `<button class="btn-success" onclick="ubahStatus(${idx}, 'Disetujui')">✔ Setuju</button> ${btnPending} <button class="btn-danger" onclick="mintaAlasan(${idx}, 'Ditolak')">✖ Tolak</button> <button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`;
-                    } else if (activeUser.role === 'admin') {
+                    } else if (activeUser && activeUser.role === 'admin') {
                         actionBtn = `<button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`;
-                    } else if (activeUser.role === 'pemohon') {
+                    } else if (activeUser && activeUser.role === 'pemohon') {
                         if (i.status === 'Pengajuan' || i.status === 'Pending') { actionBtn = `<button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`; } else if (i.status === 'Ditolak') { actionBtn = `<button class="btn-primary" onclick="bukaModalEditPengajuan(${idx})">🔄 Edit & Ajukan Ulang</button>`; }
                     }
                     let bClass = i.status === 'Pending' ? 'bg-warning' : (i.status === 'Ditolak' ? 'bg-danger' : 'bg-secondary');
                     let txtAlasan = (i.status === 'Pending' || i.status === 'Ditolak') ? `<br><span style="color:#e74c3c; font-size:11px; font-style:italic;">Catatan: ${i.alasan}</span>` : '';
-                    tr.innerHTML = `<td><strong>${i.idItem}</strong></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.nama} (${i.qty} ${i.satuan})${txtAlasan}</td><td>${i.tgl}</td><td>${formatRp(i.budgetTotal)}</td><td><span class="badge ${bClass}">${i.status}</span></td><td style="min-width: 120px;">${actionBtn}</td>`; tP.appendChild(tr);
+                    tr.innerHTML = `<td><strong>${i.idItem}</strong></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td style="white-space:normal;">${i.nama} (${i.qty} ${i.satuan})${txtAlasan}</td><td>${i.tgl}</td><td>${formatRp(i.budgetTotal)}</td><td><span class="badge ${bClass}">${i.status}</span></td><td style="min-width: 120px;">${actionBtn}</td>`; tP.appendChild(tr);
                 
                 } else if (i.status === 'Disetujui' || i.status === 'Proses Belanja') {
-                    if (activeUser.role !== 'pemohon') {
+                    if (activeUser && activeUser.role !== 'pemohon') {
                         let btn = i.status === 'Disetujui' ? `<button class="btn-warning" onclick="ubahStatus(${idx}, 'Proses Belanja')">Proses</button>` : `<button class="btn-success" onclick="bukaModalHarga(${idx})">Selesai</button>`;
                         tr.innerHTML = `<td><strong>${i.idItem}</strong></td><td>${i.pemohon}</td><td>${i.nama}</td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.budgetTotal)}</td><td><span class="badge ${i.status==='Disetujui'?'bg-info':'bg-warning'}">${i.status}</span></td><td>${btn}</td>`; tPr.appendChild(tr);
                     }
                 } else if (i.status === 'Siap') {
-                    if (activeUser.role !== 'pemohon') {
+                    if (activeUser && activeUser.role !== 'pemohon') {
                         tr.innerHTML = `<td style="text-align:center;"><input type="checkbox" class="chk-bast" value="${idx}"></td><td><strong>${i.idItem}</strong></td><td>${i.pemohon}</td><td>${i.nama}</td><td>${i.qty} ${i.satuan}</td><td><strong>${formatRp(i.hAktualTotal)}</strong></td><td><span class="badge bg-success">Siap</span></td>`; tS.appendChild(tr);
                     }
                 } else if (i.status === 'Ditolak' || i.status === 'Selesai') {
-                    if (activeUser.role !== 'pemohon') {
+                    if (activeUser && activeUser.role !== 'pemohon') {
                         let textAlasan = (i.status === 'Ditolak' && i.alasan) ? i.alasan : '-';
-                        tr.innerHTML = `<td><strong>${i.idItem}</strong></td><td>${i.pemohon} (${i.bidang})</td><td>${i.nama}</td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.status === 'Selesai' ? i.hAktualTotal : i.budgetTotal)}</td><td><span class="badge ${i.status==='Selesai'?'bg-dark':'bg-danger'}">${i.status}</span></td><td style="font-size:11px; color:#c0392b;">${textAlasan}</td><td><button class="btn-warning" onclick="bukaModalEditItem(${idx})">Edit</button></td>`; tH.appendChild(tr);
+                        tr.innerHTML = `<td><strong>${i.idItem}</strong></td><td>${i.pemohon} (${i.bidang})</td><td>${i.nama}</td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.status === 'Selesai' ? i.hAktualTotal : i.budgetTotal)}</td><td><span class="badge ${i.status==='Selesai'?'bg-dark':'bg-danger'}">${i.status}</span></td><td style="font-size:11px; color:#c0392b; white-space:normal; min-width: 150px;">${textAlasan}</td><td><button class="btn-warning" onclick="bukaModalEditItem(${idx})">Edit</button></td>`; tH.appendChild(tr);
                     }
                 }
             });
 
-            if (activeUser.role !== 'pemohon') {
+            if (activeUser && activeUser.role !== 'pemohon') {
                 document.getElementById('bodyTabelBAST').innerHTML = dataBAST.map(b => `<tr><td><strong>${b.id}</strong></td><td>${b.noSurat}</td><td>${b.judul}</td><td>${b.tanggal}</td><td>${b.itemsIdx.length} Item</td><td><button class="btn-info" onclick="alert('Download PDF Mockup')">PDF</button></td><td><button class="btn-warning" onclick="editBAST('${b.id}')">Edit</button> <button class="btn-danger" onclick="hapusBAST('${b.id}')">Hapus</button></td></tr>`).join('');
             }
         }
