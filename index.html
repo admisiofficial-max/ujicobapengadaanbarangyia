@@ -75,7 +75,6 @@
         th { background-color: #f8f9fa; color: #333; font-weight: 600; white-space: nowrap; }
         tr:hover { background-color: #f1f2f6; }
         
-        /* CLASS UNTUK TABEL DENGAN GARIS GRID PENUH (BORDERED) */
         .table-bordered th, .table-bordered td { border: 1px solid #dcdde1; }
         .table-bordered th { background-color: #f1f2f6; border-bottom: 2px solid #bdc3c7; }
 
@@ -114,7 +113,6 @@
         .filter-row-inline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #e9ecef; }
         .filter-row-inline input, .filter-row-inline select { padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; flex:1; min-width:130px; }
 
-        /* PANEL FILTER KEUANGAN KHUSUS */
         .finance-filter-panel { display: flex; justify-content: space-between; align-items: center; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #e1e8ed; margin-bottom: 20px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 15px; }
 
         @media (max-width: 992px) {
@@ -125,6 +123,7 @@
             .charts-container { grid-template-columns: 1fr; }
         }
 
+        /* ======= UPDATE: CSS RESPONSIVE NO HORIZONTAL SCROLL UNTUK HP ======= */
         @media (max-width: 768px) {
             .main-dashboard { grid-template-columns: 1fr; grid-template-rows: 60px auto 1fr; }
             header { grid-column: 1; padding: 0 15px; }
@@ -136,7 +135,10 @@
             .menu-list li { padding: 12px 20px; border-bottom: 0; border-right: 1px solid #34495e; }
             .menu-list li:hover, .menu-list li.active { padding-left: 20px; border-left: 0; border-bottom: 3px solid #f39c12; background: #34495e; }
             main { padding: 15px; }
-            .card { padding: 15px; }
+            
+            /* HILANGKAN SCROLL HORIZONTAL DI CARD UTAMA */
+            .card, #card-bast-list { overflow-x: hidden !important; padding: 15px 10px; }
+            
             .filter-panel { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: 1fr; }
             #mainStatsGrid { grid-template-columns: 1fr !important; } 
@@ -144,7 +146,53 @@
             .login-box { padding: 30px 20px; }
             .modal { padding: 20px 10px; }
             .modal-content { padding: 20px 15px; }
-            .finance-filter-panel { flex-direction: column; align-items: stretch; }
+            
+            /* MENYUSUN FORM & FILTER AGAR TURUN KE BAWAH (STACKING) */
+            .header-flex { flex-direction: column; align-items: stretch; text-align: center; gap: 10px; }
+            .filter-row-inline, .finance-filter-panel { flex-direction: column; align-items: stretch; gap: 10px; }
+            .filter-row-inline input, .filter-row-inline select, .finance-filter-panel input, .finance-filter-panel select { width: 100%; margin: 0; }
+            .finance-filter-panel div { flex-direction: column; align-items: stretch !important; width: 100%; }
+            .finance-filter-panel span { text-align: center; display: block; margin-bottom: 5px; }
+
+            /* MERUBAH TABEL MENJADI BENTUK KARTU (CARD-VIEW) */
+            table { min-width: 100% !important; border: 0 !important; }
+            table thead { display: none; /* Sembunyikan header atas */ }
+            table tbody tr { 
+                display: block; 
+                margin-bottom: 15px; 
+                border: 1px solid #dcdde1; 
+                border-radius: 8px; 
+                background: #fff; 
+                padding: 10px; 
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            }
+            table tbody td { 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: flex-start; /* Teks turun rapi ke bawah */
+                border-bottom: 1px solid #f1f2f6; 
+                padding: 10px 0; 
+                text-align: right !important; 
+                font-size: 12px; 
+                border-left: none; border-right: none; border-top: none; 
+                word-break: break-word; 
+                gap: 15px;
+            }
+            table tbody td:last-child { border-bottom: none; }
+            
+            /* MEMUNCULKAN LABEL KOLOM DI SEBELAH KIRI */
+            table tbody td::before { 
+                content: attr(data-label); 
+                font-weight: bold; 
+                color: #34495e; 
+                text-align: left; 
+                flex-shrink: 0; 
+                max-width: 40%; 
+            }
+            
+            /* Merapikan elemen di dalam wujud Kartu */
+            table tbody td button, table tbody td .badge { display: inline-block; margin-top: 5px; margin-bottom: 5px; }
+            table tbody td small { display: block; text-align: right; }
         }
     </style>
 </head>
@@ -174,7 +222,7 @@
     <div class="main-dashboard" id="dashboardPage">
         <header>
             <div class="app-title">
-                Sistem Pengadaan & Keuangan v12.3
+                Sistem Pengadaan & Keuangan v12.4
                 <span class="sync-indicator" id="syncIcon">● LIVE SYNC</span>
             </div>
             <div class="profile-section">
@@ -183,7 +231,6 @@
             </div>
         </header>
 
-        <!-- MENU DIUPDATE: KEUANGAN DI BAWAH DATABASE -->
         <aside>
             <ul class="menu-list">
                 <li onclick="switchMenu('dashboard')" class="active" id="menu-dashboard">Dashboard</li>
@@ -245,7 +292,7 @@
                 </div>
             </div>
 
-            <!-- MENU KEUANGAN (UPDATE: Tabel Grid & Filter Rapi) -->
+            <!-- MENU KEUANGAN -->
             <div id="content-keuangan" class="page-content">
                 <div class="stats-grid" id="keuanganStatsGrid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
                     <div class="stat-card" style="border-left-color: #27ae60;">
@@ -327,7 +374,7 @@
                 <div class="card">
                     <div class="header-flex">
                         <h2>Barang Siap Serah Terima</h2>
-                        <div style="display:flex; gap:10px; align-items:center;">
+                        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                             <select id="stFilterBidang" onchange="renderSerahTerima()" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
                                 <option value="">Semua Bidang</option>
                             </select>
@@ -439,9 +486,7 @@
         </main>
     </div>
 
-    <!-- SEMUA MODAL POPUP (KEMBALI UTUH) -->
-
-    <!-- MODAL KEUANGAN (UPDATE MULTI INPUT) -->
+    <!-- MODAL POPUP -->
     <div id="modalKeuangan" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="tutupModalKeuangan()">&times;</span>
@@ -449,11 +494,9 @@
             <form id="formInputKeuangan">
                 <input type="hidden" id="kIndex">
                 <div id="daftarKeuanganContainer"></div>
-                
                 <div id="financeActionButtons" style="margin-bottom: 20px;">
                     <button type="button" class="btn-warning" onclick="tambahBarisKeuangan()" style="padding: 10px; font-weight: bold;">+ Tambah Baris Transaksi</button>
                 </div>
-                
                 <div style="text-align: right; border-top: 1px solid #ddd; padding-top: 15px;">
                     <button type="submit" class="btn-primary" style="width: auto; padding: 12px 30px;">💾 Simpan Seluruh Transaksi</button>
                 </div>
@@ -581,7 +624,7 @@
 
     <script>
         const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka || 0);
-        // MENGGUNAKAN API URL YANG SEBELUMNYA ANDA GUNAKAN (TIDAK BERUBAH)
+        // API SAMA, TIDAK DIUBAH
         const API_URL = "https://script.google.com/macros/s/AKfycbyj0uOzfCCpguTdTtM1n8D02LWE9c1ObTzhu-RsJdW_SXaX6Fqv1Bg0I_si4bYSt5sc/exec"; 
         const akunAuthor = { user: 'author', pass: '123', role: 'asesor', nama: 'Author', nipy: '00000', jabatan: 'System Creator', bidang: 'Super Admin' };
 
@@ -754,7 +797,6 @@
             jumlahTransaksi = 0;
 
             if(idx > -1) {
-                // Mode Edit (Single Row)
                 document.getElementById('titleModalKeuangan').innerText = "Edit Transaksi Keuangan";
                 document.getElementById('kIndex').value = idx;
                 document.getElementById('financeActionButtons').style.display = 'none';
@@ -768,7 +810,6 @@
                 document.querySelector('.k-kredit').value = data.kredit;
                 document.querySelector('.k-cat').value = data.catatan;
             } else {
-                // Mode Tambah Baru (Bisa Multi Row)
                 document.getElementById('titleModalKeuangan').innerText = "Tambah Transaksi Keuangan";
                 document.getElementById('kIndex').value = '';
                 document.getElementById('financeActionButtons').style.display = 'block';
@@ -793,7 +834,6 @@
             const cats = document.querySelectorAll('.k-cat');
 
             if(idx !== '') {
-                // Update 1 Item
                 dataKeuangan[idx] = {
                     tanggal: tgls[0].value,
                     keterangan: kets[0].value,
@@ -803,7 +843,6 @@
                 };
             } 
             else {
-                // Push Banyak Item
                 for(let i = 0; i < tgls.length; i++) {
                     dataKeuangan.push({
                         tanggal: tgls[i].value,
@@ -815,26 +854,18 @@
                 }
             }
             
-            // Urutkan berdasarkan tanggal agar running saldo selalu benar
             dataKeuangan.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
-            
-            saveData();
-            tutupModalKeuangan();
-            renderTables();
+            saveData(); tutupModalKeuangan(); renderTables();
         });
 
         function hapusKeuangan(idx) {
             if(confirm("Apakah Anda yakin ingin menghapus transaksi keuangan ini?")) {
-                dataKeuangan.splice(idx, 1);
-                saveData();
-                renderTables();
+                dataKeuangan.splice(idx, 1); saveData(); renderTables();
             }
         }
 
         function resetFilterKeuangan() {
-            document.getElementById('kFilterStart').value = '';
-            document.getElementById('kFilterEnd').value = '';
-            renderKeuangan();
+            document.getElementById('kFilterStart').value = ''; document.getElementById('kFilterEnd').value = ''; renderKeuangan();
         }
 
         function renderKeuangan() {
@@ -846,14 +877,11 @@
             let tbody = document.getElementById('bodyTabelKeuangan');
             tbody.innerHTML = '';
             
-            let saldo = 0;
-            let totalDebetFiltered = 0;
-            let totalKreditFiltered = 0;
-            let finalSaldo = 0;
+            let saldo = 0; let totalDebetFiltered = 0; let totalKreditFiltered = 0; let finalSaldo = 0;
             
             dataKeuangan.forEach((k, idx) => {
-                saldo += k.debet - k.kredit; // Hitung saldo keseluruhan secara berurutan
-                finalSaldo = saldo; // Terus update saldo hingga transaksi terakhir
+                saldo += k.debet - k.kredit; 
+                finalSaldo = saldo; 
                 
                 let show = true;
                 if(start && k.tanggal < start) show = false;
@@ -883,107 +911,36 @@
                 tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">Belum ada data transaksi kas pada rentang waktu ini.</td></tr>`;
             }
 
-            // Update Mini Dashboard di Menu Keuangan
             document.getElementById('kDashMasuk').innerText = formatRp(totalDebetFiltered);
             document.getElementById('kDashKeluar').innerText = formatRp(totalKreditFiltered);
             document.getElementById('kDashSaldo').innerText = formatRp(finalSaldo);
         }
 
         function downloadKeuanganExcel() {
-            let start = document.getElementById('kFilterStart').value;
-            let end = document.getElementById('kFilterEnd').value;
-            
-            let exportData = [];
-            let saldo = 0;
-            
+            let start = document.getElementById('kFilterStart').value; let end = document.getElementById('kFilterEnd').value;
+            let exportData = []; let saldo = 0;
             dataKeuangan.forEach((k) => {
                 saldo += k.debet - k.kredit;
                 let show = true;
                 if(start && k.tanggal < start) show = false;
                 if(end && k.tanggal > end) show = false;
-                
-                if(show) {
-                    exportData.push({
-                        "Tanggal": k.tanggal,
-                        "Keterangan": k.keterangan,
-                        "Debet (Masuk)": k.debet,
-                        "Kredit (Keluar)": k.kredit,
-                        "Saldo Kas": saldo,
-                        "Catatan Tambahan": k.catatan || '-'
-                    });
-                }
+                if(show) { exportData.push({ "Tanggal": k.tanggal, "Keterangan": k.keterangan, "Debet (Masuk)": k.debet, "Kredit (Keluar)": k.kredit, "Saldo Kas": saldo, "Catatan Tambahan": k.catatan || '-' }); }
             });
-            
             if(exportData.length === 0) return alert("Tidak ada data keuangan di rentang waktu ini.");
-            
-            let ws = XLSX.utils.json_to_sheet(exportData); 
-            let wb = XLSX.utils.book_new(); 
-            XLSX.utils.book_append_sheet(wb, ws, "Laporan_Keuangan"); 
-            let periode = (start && end) ? `${start}_sd_${end}` : 'Semua_Waktu';
-            XLSX.writeFile(wb, `Laporan_Keuangan_${periode}.xlsx`);
+            let ws = XLSX.utils.json_to_sheet(exportData); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Laporan_Keuangan"); let periode = (start && end) ? `${start}_sd_${end}` : 'Semua_Waktu'; XLSX.writeFile(wb, `Laporan_Keuangan_${periode}.xlsx`);
         }
 
         function printKeuangan() {
-            let start = document.getElementById('kFilterStart').value;
-            let end = document.getElementById('kFilterEnd').value;
-            let periode = (start && end) ? `${start} s/d ${end}` : 'Semua Waktu';
-            
-            let html = `
-            <div style="font-family: Arial, sans-serif; padding: 20px;">
-                <h2 style="text-align:center; margin-bottom: 5px;">Laporan Transaksi Keuangan Kas</h2>
-                <p style="text-align:center; margin-top: 0; margin-bottom: 20px; font-size: 14px;">Periode: ${periode}</p>
-                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                    <thead>
-                        <tr style="background-color: #f2f2f2;">
-                            <th style="border: 1px solid #000; padding: 8px;">Tanggal</th>
-                            <th style="border: 1px solid #000; padding: 8px;">Keterangan</th>
-                            <th style="border: 1px solid #000; padding: 8px;">Debet (Masuk)</th>
-                            <th style="border: 1px solid #000; padding: 8px;">Kredit (Keluar)</th>
-                            <th style="border: 1px solid #000; padding: 8px;">Saldo Kas</th>
-                            <th style="border: 1px solid #000; padding: 8px;">Catatan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            
+            let start = document.getElementById('kFilterStart').value; let end = document.getElementById('kFilterEnd').value; let periode = (start && end) ? `${start} s/d ${end}` : 'Semua Waktu';
+            let html = `<div style="font-family: Arial, sans-serif; padding: 20px;"><h2 style="text-align:center; margin-bottom: 5px;">Laporan Transaksi Keuangan Kas</h2><p style="text-align:center; margin-top: 0; margin-bottom: 20px; font-size: 14px;">Periode: ${periode}</p><table style="width: 100%; border-collapse: collapse; font-size: 12px;"><thead><tr style="background-color: #f2f2f2;"><th style="border: 1px solid #000; padding: 8px;">Tanggal</th><th style="border: 1px solid #000; padding: 8px;">Keterangan</th><th style="border: 1px solid #000; padding: 8px;">Debet (Masuk)</th><th style="border: 1px solid #000; padding: 8px;">Kredit (Keluar)</th><th style="border: 1px solid #000; padding: 8px;">Saldo Kas</th><th style="border: 1px solid #000; padding: 8px;">Catatan</th></tr></thead><tbody>`;
             let saldo = 0; let totalDebet = 0; let totalKredit = 0;
-            
             dataKeuangan.forEach((k) => {
-                saldo += k.debet - k.kredit;
-                let show = true;
-                if(start && k.tanggal < start) show = false;
-                if(end && k.tanggal > end) show = false;
-                
-                if(show) {
-                    totalDebet += k.debet; totalKredit += k.kredit;
-                    html += `
-                    <tr>
-                        <td style="border: 1px solid #000; padding: 8px; text-align:center;">${k.tanggal}</td>
-                        <td style="border: 1px solid #000; padding: 8px;">${k.keterangan}</td>
-                        <td style="border: 1px solid #000; padding: 8px; text-align:right;">${formatRp(k.debet)}</td>
-                        <td style="border: 1px solid #000; padding: 8px; text-align:right;">${formatRp(k.kredit)}</td>
-                        <td style="border: 1px solid #000; padding: 8px; text-align:right;"><b>${formatRp(saldo)}</b></td>
-                        <td style="border: 1px solid #000; padding: 8px;">${k.catatan || '-'}</td>
-                    </tr>`;
-                }
+                saldo += k.debet - k.kredit; let show = true;
+                if(start && k.tanggal < start) show = false; if(end && k.tanggal > end) show = false;
+                if(show) { totalDebet += k.debet; totalKredit += k.kredit; html += `<tr><td style="border: 1px solid #000; padding: 8px; text-align:center;">${k.tanggal}</td><td style="border: 1px solid #000; padding: 8px;">${k.keterangan}</td><td style="border: 1px solid #000; padding: 8px; text-align:right;">${formatRp(k.debet)}</td><td style="border: 1px solid #000; padding: 8px; text-align:right;">${formatRp(k.kredit)}</td><td style="border: 1px solid #000; padding: 8px; text-align:right;"><b>${formatRp(saldo)}</b></td><td style="border: 1px solid #000; padding: 8px;">${k.catatan || '-'}</td></tr>`; }
             });
-            
-            html += `
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="2" style="border: 1px solid #000; padding: 8px; text-align:right; background:#f2f2f2;"><b>Total Periode Ini:</b></td>
-                            <td style="border: 1px solid #000; padding: 8px; text-align:right; background:#f2f2f2;"><b>${formatRp(totalDebet)}</b></td>
-                            <td style="border: 1px solid #000; padding: 8px; text-align:right; background:#f2f2f2;"><b>${formatRp(totalKredit)}</b></td>
-                            <td colspan="2" style="border: 1px solid #000; padding: 8px; background:#f2f2f2;"></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>`;
-            
-            const printWindow = window.open('', '_blank'); 
-            printWindow.document.write(`<html><head><title>Print Laporan Keuangan</title></head><body onload="window.print(); window.close();">${html}</body></html>`); 
-            printWindow.document.close();
+            html += `</tbody><tfoot><tr><td colspan="2" style="border: 1px solid #000; padding: 8px; text-align:right; background:#f2f2f2;"><b>Total Periode Ini:</b></td><td style="border: 1px solid #000; padding: 8px; text-align:right; background:#f2f2f2;"><b>${formatRp(totalDebet)}</b></td><td style="border: 1px solid #000; padding: 8px; text-align:right; background:#f2f2f2;"><b>${formatRp(totalKredit)}</b></td><td colspan="2" style="border: 1px solid #000; padding: 8px; background:#f2f2f2;"></td></tr></tfoot></table></div>`;
+            const printWindow = window.open('', '_blank'); printWindow.document.write(`<html><head><title>Print Laporan Keuangan</title></head><body onload="window.print(); window.close();">${html}</body></html>`); printWindow.document.close();
         }
 
         // ==========================================
@@ -1397,6 +1354,24 @@
                 console.error("Terjadi masalah saat me-render tabel: ", err);
             }
         }
+
+        // [AUTO LABEL UNTUK TABEL MOBILE]
+        // Script ini mendeteksi perubahan layar dan menyuntikkan judul kolom
+        // ke atribut 'data-label' secara otomatis saat di-view di HP
+        const autoLabelObserver = new MutationObserver(() => {
+            document.querySelectorAll('table').forEach(table => {
+                let headers = Array.from(table.querySelectorAll('thead th')).map(th => th.innerText.trim().replace(/\n/g, ' '));
+                table.querySelectorAll('tbody tr').forEach(tr => {
+                    Array.from(tr.children).forEach((td, i) => {
+                        if(headers[i] && !td.hasAttribute('data-label')) {
+                            td.setAttribute('data-label', headers[i]);
+                        }
+                    });
+                });
+            });
+        });
+        autoLabelObserver.observe(document.body, { childList: true, subtree: true });
+
     </script>
 </body>
 </html>
