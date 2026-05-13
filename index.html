@@ -123,7 +123,7 @@
             .charts-container { grid-template-columns: 1fr; }
         }
 
-        /* ======= UPDATE: CSS RESPONSIVE NO HORIZONTAL SCROLL UNTUK HP ======= */
+        /* TABEL TETAP BISA DI SCROLL HORIZONTAL DI HP */
         @media (max-width: 768px) {
             .main-dashboard { grid-template-columns: 1fr; grid-template-rows: 60px auto 1fr; }
             header { grid-column: 1; padding: 0 15px; }
@@ -135,10 +135,7 @@
             .menu-list li { padding: 12px 20px; border-bottom: 0; border-right: 1px solid #34495e; }
             .menu-list li:hover, .menu-list li.active { padding-left: 20px; border-left: 0; border-bottom: 3px solid #f39c12; background: #34495e; }
             main { padding: 15px; }
-            
-            /* HILANGKAN SCROLL HORIZONTAL DI CARD UTAMA */
-            .card, #card-bast-list { overflow-x: hidden !important; padding: 15px 10px; }
-            
+            .card { padding: 15px; }
             .filter-panel { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: 1fr; }
             #mainStatsGrid { grid-template-columns: 1fr !important; } 
@@ -146,53 +143,7 @@
             .login-box { padding: 30px 20px; }
             .modal { padding: 20px 10px; }
             .modal-content { padding: 20px 15px; }
-            
-            /* MENYUSUN FORM & FILTER AGAR TURUN KE BAWAH (STACKING) */
-            .header-flex { flex-direction: column; align-items: stretch; text-align: center; gap: 10px; }
-            .filter-row-inline, .finance-filter-panel { flex-direction: column; align-items: stretch; gap: 10px; }
-            .filter-row-inline input, .filter-row-inline select, .finance-filter-panel input, .finance-filter-panel select { width: 100%; margin: 0; }
-            .finance-filter-panel div { flex-direction: column; align-items: stretch !important; width: 100%; }
-            .finance-filter-panel span { text-align: center; display: block; margin-bottom: 5px; }
-
-            /* MERUBAH TABEL MENJADI BENTUK KARTU (CARD-VIEW) */
-            table { min-width: 100% !important; border: 0 !important; }
-            table thead { display: none; /* Sembunyikan header atas */ }
-            table tbody tr { 
-                display: block; 
-                margin-bottom: 15px; 
-                border: 1px solid #dcdde1; 
-                border-radius: 8px; 
-                background: #fff; 
-                padding: 10px; 
-                box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-            }
-            table tbody td { 
-                display: flex; 
-                justify-content: space-between; 
-                align-items: flex-start; /* Teks turun rapi ke bawah */
-                border-bottom: 1px solid #f1f2f6; 
-                padding: 10px 0; 
-                text-align: right !important; 
-                font-size: 12px; 
-                border-left: none; border-right: none; border-top: none; 
-                word-break: break-word; 
-                gap: 15px;
-            }
-            table tbody td:last-child { border-bottom: none; }
-            
-            /* MEMUNCULKAN LABEL KOLOM DI SEBELAH KIRI */
-            table tbody td::before { 
-                content: attr(data-label); 
-                font-weight: bold; 
-                color: #34495e; 
-                text-align: left; 
-                flex-shrink: 0; 
-                max-width: 40%; 
-            }
-            
-            /* Merapikan elemen di dalam wujud Kartu */
-            table tbody td button, table tbody td .badge { display: inline-block; margin-top: 5px; margin-bottom: 5px; }
-            table tbody td small { display: block; text-align: right; }
+            .finance-filter-panel { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -222,7 +173,7 @@
     <div class="main-dashboard" id="dashboardPage">
         <header>
             <div class="app-title">
-                Sistem Pengadaan & Keuangan v12.4
+                Sistem Pengadaan & Keuangan v12.5
                 <span class="sync-indicator" id="syncIcon">● LIVE SYNC</span>
             </div>
             <div class="profile-section">
@@ -292,7 +243,6 @@
                 </div>
             </div>
 
-            <!-- MENU KEUANGAN -->
             <div id="content-keuangan" class="page-content">
                 <div class="stats-grid" id="keuanganStatsGrid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
                     <div class="stat-card" style="border-left-color: #27ae60;">
@@ -778,7 +728,6 @@
                 </div>
             `;
             document.getElementById('daftarKeuanganContainer').appendChild(div);
-            // Auto fill date
             div.querySelector('.k-tanggal').valueAsDate = new Date();
         }
 
@@ -1354,24 +1303,6 @@
                 console.error("Terjadi masalah saat me-render tabel: ", err);
             }
         }
-
-        // [AUTO LABEL UNTUK TABEL MOBILE]
-        // Script ini mendeteksi perubahan layar dan menyuntikkan judul kolom
-        // ke atribut 'data-label' secara otomatis saat di-view di HP
-        const autoLabelObserver = new MutationObserver(() => {
-            document.querySelectorAll('table').forEach(table => {
-                let headers = Array.from(table.querySelectorAll('thead th')).map(th => th.innerText.trim().replace(/\n/g, ' '));
-                table.querySelectorAll('tbody tr').forEach(tr => {
-                    Array.from(tr.children).forEach((td, i) => {
-                        if(headers[i] && !td.hasAttribute('data-label')) {
-                            td.setAttribute('data-label', headers[i]);
-                        }
-                    });
-                });
-            });
-        });
-        autoLabelObserver.observe(document.body, { childList: true, subtree: true });
-
     </script>
 </body>
 </html>
