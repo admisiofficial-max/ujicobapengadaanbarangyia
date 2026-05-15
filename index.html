@@ -181,7 +181,7 @@
     <div class="main-dashboard" id="dashboardPage">
         <header>
             <div class="app-title">
-                Sistem Pengadaan & Keuangan v12.9
+                Sistem Pengadaan & Keuangan v13.1
                 <span class="sync-indicator" id="syncIcon">● LIVE SYNC</span>
             </div>
             <div class="profile-section">
@@ -316,10 +316,19 @@
                 </div>
             </div>
 
+            <!-- TABEL PENGAJUAN -->
             <div id="content-pengajuan" class="page-content">
                 <div class="card">
                     <div class="header-flex"><h2>Daftar Detail Pengajuan Baru</h2><button class="btn-success" onclick="bukaModalPengajuan()">+ Tambah Pengajuan</button></div>
                     <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Item dengan status <b>Pending</b> akan tetap berada di tabel ini menunggu persetujuan akhir dari Asesor.</p>
+                    
+                    <div class="filter-row-inline">
+                        <span style="font-size: 12px; font-weight: bold; color: #555;">🔍 Filter Tabel:</span>
+                        <input type="text" id="pengSearch" placeholder="Cari Nama Barang..." onkeyup="renderTables()">
+                        <select id="pengFilterPemohon" onchange="renderTables()"><option value="">Semua Pemohon</option></select>
+                        <select id="pengFilterBidang" onchange="renderTables()"><option value="">Semua Bidang</option></select>
+                    </div>
+
                     <table id="tabelDataPengajuan">
                         <thead><tr><th>ID Item</th><th>Pemohon (Bidang)</th><th>Barang & Qty</th><th>Lampiran</th><th>Tgl Masuk</th><th>Total Budget</th><th>Status</th><th>Aksi</th></tr></thead>
                         <tbody id="bodyTabelPengajuan"></tbody>
@@ -327,37 +336,71 @@
                 </div>
             </div>
             
+            <!-- TABEL PROSES BELANJA (Diupdate) -->
             <div id="content-proses" class="page-content">
                 <div class="card">
                     <h2>Antrean Proses Belanja</h2>
-                    <table>
-                        <thead><tr><th>ID Item</th><th>Pemohon</th><th>Barang</th><th>Qty</th><th>Total Budget</th><th>Status</th><th>Aksi</th></tr></thead>
+                    
+                    <div class="filter-row-inline">
+                        <span style="font-size: 12px; font-weight: bold; color: #555;">🔍 Filter Tabel:</span>
+                        <input type="text" id="prosSearch" placeholder="Cari Nama Barang..." onkeyup="renderTables()">
+                        <select id="prosFilterPemohon" onchange="renderTables()"><option value="">Semua Pemohon</option></select>
+                        <select id="prosFilterBidang" onchange="renderTables()"><option value="">Semua Bidang</option></select>
+                    </div>
+
+                    <table style="min-width: 1200px;">
+                        <thead>
+                            <tr>
+                                <th>Pemohon (Bidang)</th>
+                                <th>Tgl Pengajuan</th>
+                                <th>Barang & Spek</th>
+                                <th>Qty & Satuan</th>
+                                <th>Budget</th>
+                                <th>Tgl Rencana<br>Digunakan</th>
+                                <th>Status</th>
+                                <th>Lampiran & Keterangan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
                         <tbody id="bodyTabelProses"></tbody>
                     </table>
                 </div>
             </div>
 
+            <!-- TABEL SERAH TERIMA (Diupdate) -->
             <div id="content-serah-terima" class="page-content">
                 <div class="card">
                     <div class="header-flex">
                         <h2>Barang Siap Serah Terima</h2>
                         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                            <select id="stFilterBidang" onchange="renderSerahTerima()" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
-                                <option value="">Semua Bidang</option>
-                            </select>
-                            <button class="btn-primary" onclick="siapkanBAST()" style="width:auto;">Buat BAST dari Pilihan</button>
-                            <!-- TOMBOL BAST MANUAL -->
-                            <button class="btn-warning" onclick="siapkanBASTManual()" style="width:auto; font-weight:bold;">📝 Buat BAST Manual Luar Sistem</button>
+                            <!-- Tombol Digabung -->
+                            <button class="btn-primary" onclick="siapkanBASTGabungan()" style="width:auto; font-weight:bold;">📝 Buat BAST (Otomatis / Manual)</button>
                         </div>
                     </div>
-                    <table>
+                    
+                    <div class="filter-row-inline">
+                        <span style="font-size: 12px; font-weight: bold; color: #555;">🔍 Filter Tabel:</span>
+                        <input type="text" id="stSearch" placeholder="Cari Nama Barang..." onkeyup="renderTables()">
+                        <select id="stFilterPemohon" onchange="renderTables()"><option value="">Semua Pemohon</option></select>
+                        <select id="stFilterBidang" onchange="renderTables()"><option value="">Semua Bidang</option></select>
+                    </div>
+
+                    <table style="min-width: 1200px;">
                         <thead>
                             <tr>
                                 <th style="width: 60px; text-align:center;">
                                     <input type="checkbox" id="chkAllSerahTerima" onclick="toggleCheckAll(this)" style="transform: scale(1.2); cursor:pointer;">
                                     <label for="chkAllSerahTerima" style="display:block; font-size:10px; margin-top:3px; cursor:pointer;">Pilih Semua</label>
                                 </th>
-                                <th>ID Item</th><th>Pemohon (Bidang)</th><th>Barang</th><th>Qty</th><th>Harga Aktual Total</th><th>Status & Aksi</th>
+                                <th>Pemohon (Bidang)</th>
+                                <th>Tgl Pengajuan</th>
+                                <th>Barang & Spek</th>
+                                <th>Qty & Satuan</th>
+                                <th>Harga Satuan<br><small>(Saat Belanja)</small></th>
+                                <th>Harga Total<br><small>(Saat Belanja)</small></th>
+                                <th>Tgl Selesai</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="bodyTabelSerahTerima"></tbody>
@@ -402,9 +445,9 @@
                         <h2 style="margin:0;">Daftar Pengadaan Barang</h2>
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                             <span style="font-size:12px; font-weight:bold;">Tgl Pengajuan:</span>
-                            <input type="date" id="dlStartDate" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;" onchange="renderDaftarPengadaan()">
+                            <input type="date" id="dlStartDate" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;" onchange="renderTables()">
                             <span style="font-size:12px; font-weight:bold;">s/d</span>
-                            <input type="date" id="dlEndDate" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;" onchange="renderDaftarPengadaan()">
+                            <input type="date" id="dlEndDate" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;" onchange="renderTables()">
                             <button class="btn-info" onclick="downloadHistoriPDF()">📄 Unduh PDF</button>
                             <button class="btn-success" onclick="downloadHistoriExcel()">📊 Unduh Excel</button>
                         </div>
@@ -412,10 +455,10 @@
                     
                     <div class="filter-row-inline">
                         <span style="font-size: 12px; font-weight: bold; color: #555;">🔍 Filter Tabel:</span>
-                        <input type="text" id="dpSearch" placeholder="Cari Nama Barang..." onkeyup="renderDaftarPengadaan()">
-                        <select id="dpFilterPemohon" onchange="renderDaftarPengadaan()"><option value="">Semua Pemohon</option></select>
-                        <select id="dpFilterBidang" onchange="renderDaftarPengadaan()"><option value="">Semua Bidang</option></select>
-                        <select id="dpFilterStatus" onchange="renderDaftarPengadaan()">
+                        <input type="text" id="dpSearch" placeholder="Cari Nama Barang..." onkeyup="renderTables()">
+                        <select id="dpFilterPemohon" onchange="renderTables()"><option value="">Semua Pemohon</option></select>
+                        <select id="dpFilterBidang" onchange="renderTables()"><option value="">Semua Bidang</option></select>
+                        <select id="dpFilterStatus" onchange="renderTables()">
                             <option value="">Semua Status</option>
                             <option value="Pengajuan">Pengajuan</option>
                             <option value="Pending">Pending</option>
@@ -440,7 +483,7 @@
                                 <th>Tgl Rencana<br>Digunakan</th>
                                 <th>Tgl Selesai</th>
                                 <th>Status</th>
-                                <th>Catatan / Keterangan</th>
+                                <th>Lampiran & Keterangan</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -605,7 +648,7 @@
     
     <div id="modalHarga" class="modal"><div class="modal-content modal-sm"><span class="close-modal" onclick="tutupModalHarga()">&times;</span><h3>Input Harga Aktual</h3><form id="formHargaAktual" style="margin-top:15px;"><input type="hidden" id="indexItemAktif"><div class="input-group"><label>Harga Aktual Total (Rp)</label><input type="number" id="hargaTotal" required oninput="hitungHargaSatuan()"></div><div class="input-group"><label>Harga Aktual Satuan</label><input type="number" id="hargaSatuan" readonly></div><button type="submit" class="btn-success" style="width: 100%; padding: 10px;">Simpan & Tandai Siap</button></form></div></div>
     
-    <!-- MODAL BAST (GABUNGAN SYSTEM & MANUAL) -->
+    <!-- MODAL BAST -->
     <div id="modalBAST" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="tutupModalBAST()">&times;</span>
@@ -617,7 +660,6 @@
                 <div class="form-grid-2">
                     <div class="input-group">
                         <label>Judul Berita Acara (Bidang)</label>
-                        <!-- Ubah select menjadi input datalist agar lebih fleksibel di mode manual -->
                         <input type="text" id="bastBidang" required list="listBidang" onchange="updateDefaultTembusan()" placeholder="Pilih/Ketik Bidang...">
                         <datalist id="listBidang"></datalist>
                     </div>
@@ -655,7 +697,7 @@
                     </div>
                 </div>
 
-                <!-- SECTION BARANG MANUAL (Tampil jika BAST luar sistem) -->
+                <!-- SECTION BARANG MANUAL -->
                 <div id="sectionBastManual" style="display:none; margin-top: 15px; background:#f9f9f9; border: 1px solid #e1e8ed; padding: 15px; border-radius: 6px;">
                     <div class="header-flex" style="margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">
                         <h4 style="color: #d35400;">📦 Daftar Barang (Input Manual Luar Sistem)</h4>
@@ -681,7 +723,36 @@
         </div>
     </div>
     
-    <div id="modalEditItem" class="modal"><div class="modal-content modal-sm"><span class="close-modal" onclick="tutupModalEditItem()">&times;</span><h3>Edit Histori Item</h3><form id="formEditItem" style="margin-top:15px;"><input type="hidden" id="editItemIdx"><div class="input-group"><label>Bidang</label><input type="text" id="eBidang" required></div><div class="input-group"><label>Nama Barang</label><input type="text" id="eNama" required></div><div class="form-grid-2"><div class="input-group"><label>Qty</label><input type="number" id="eQty" required></div><div class="input-group"><label>Satuan</label><input type="text" id="eSatuan" required></div></div><div class="input-group"><label>Total Biaya (Rp)</label><input type="number" id="eBiaya" required></div><div class="input-group"><label>Status Akhir</label><select id="eStatus"><option value="Selesai">Selesai</option><option value="Ditolak">Ditolak</option></select></div><button type="submit" class="btn-warning" style="width: 100%; padding: 10px; font-weight:bold;">Update Data Item</button></form></div></div>
+    <!-- MODAL EDIT ITEM UNIVERSAL -->
+    <div id="modalEditItem" class="modal">
+        <div class="modal-content modal-sm">
+            <span class="close-modal" onclick="tutupModalEditItem()">&times;</span>
+            <h3>Edit Histori Item</h3>
+            <form id="formEditItem" style="margin-top:15px;">
+                <input type="hidden" id="editItemIdx">
+                <div class="input-group"><label>Bidang</label><input type="text" id="eBidang" required></div>
+                <div class="input-group"><label>Nama Barang</label><input type="text" id="eNama" required></div>
+                <div class="form-grid-2">
+                    <div class="input-group"><label>Qty</label><input type="number" id="eQty" required></div>
+                    <div class="input-group"><label>Satuan</label><input type="text" id="eSatuan" required></div>
+                </div>
+                <div class="input-group"><label>Total Biaya (Rp)</label><input type="number" id="eBiaya" required></div>
+                <div class="input-group">
+                    <label>Status Item</label>
+                    <select id="eStatus">
+                        <option value="Pengajuan">Pengajuan</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Disetujui">Disetujui</option>
+                        <option value="Proses Belanja">Proses Belanja</option>
+                        <option value="Siap">Siap</option>
+                        <option value="Selesai">Selesai</option>
+                        <option value="Ditolak">Ditolak</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-warning" style="width: 100%; padding: 10px; font-weight:bold;">Update Data Item</button>
+            </form>
+        </div>
+    </div>
 
     <script>
         const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka || 0);
@@ -697,8 +768,11 @@
         function shouldBackgroundRender() {
             if (!activeUser || isModalOpen) return false;
             if (document.querySelectorAll('.chk-bast:checked').length > 0) return false; 
-            let searchBox = document.getElementById('dpSearch');
-            if (searchBox && searchBox.value.trim() !== '') return false; 
+            let searchBoxes = ['dpSearch', 'pengSearch', 'prosSearch', 'stSearch'];
+            for(let box of searchBoxes) {
+                let el = document.getElementById(box);
+                if (el && el.value.trim() !== '') return false;
+            }
             return true;
         }
 
@@ -823,9 +897,45 @@
         document.getElementById('formHargaAktual').addEventListener('submit', (e) => { e.preventDefault(); let idx = document.getElementById('indexItemAktif').value; dataItems[idx].hAktualSatuan = parseInt(document.getElementById('hargaSatuan').value); dataItems[idx].hAktualTotal = parseInt(document.getElementById('hargaTotal').value); dataItems[idx].status = 'Siap'; saveData(); tutupModalHarga(); renderTables(); });
         function ubahStatus(idx, st) { dataItems[idx].status = st; if(st === 'Disetujui') dataItems[idx].alasan = ''; saveData(); renderTables(); }
         function batalkanSiap(idx) { if(confirm("Batalkan status 'Siap' pada item ini dan kembalikan ke 'Proses Belanja'?")) { dataItems[idx].status = 'Proses Belanja'; dataItems[idx].hAktualSatuan = 0; dataItems[idx].hAktualTotal = 0; saveData(); renderTables(); } }
-        function bukaModalEditItem(idx) { isModalOpen = true; const item = dataItems[idx]; document.getElementById('editItemIdx').value = idx; document.getElementById('eBidang').value = item.bidang; document.getElementById('eNama').value = item.nama; document.getElementById('eQty').value = item.qty; document.getElementById('eSatuan').value = item.satuan; document.getElementById('eBiaya').value = (item.status === 'Selesai' || item.status === 'Siap') ? item.hAktualTotal : item.budgetTotal; document.getElementById('eStatus').value = item.status; document.getElementById('modalEditItem').style.display = "flex"; }
+        
+        function bukaModalEditItem(idx) { 
+            isModalOpen = true; 
+            const item = dataItems[idx]; 
+            document.getElementById('editItemIdx').value = idx; 
+            document.getElementById('eBidang').value = item.bidang; 
+            document.getElementById('eNama').value = item.nama; 
+            document.getElementById('eQty').value = item.qty; 
+            document.getElementById('eSatuan').value = item.satuan; 
+            document.getElementById('eBiaya').value = (item.status === 'Selesai' || item.status === 'Siap') ? item.hAktualTotal : item.budgetTotal; 
+            document.getElementById('eStatus').value = item.status; 
+            document.getElementById('modalEditItem').style.display = "flex"; 
+        }
         function tutupModalEditItem() { isModalOpen = false; document.getElementById('modalEditItem').style.display = "none"; }
-        document.getElementById('formEditItem').addEventListener('submit', function(e){ e.preventDefault(); const idx = document.getElementById('editItemIdx').value; dataItems[idx].bidang = document.getElementById('eBidang').value; dataItems[idx].nama = document.getElementById('eNama').value; dataItems[idx].qty = parseInt(document.getElementById('eQty').value); dataItems[idx].satuan = document.getElementById('eSatuan').value; dataItems[idx].status = document.getElementById('eStatus').value; let biaya = parseInt(document.getElementById('eBiaya').value); if(dataItems[idx].status === 'Selesai' || dataItems[idx].status === 'Siap') { dataItems[idx].hAktualTotal = biaya; dataItems[idx].hAktualSatuan = Math.floor(biaya / dataItems[idx].qty); } else dataItems[idx].budgetTotal = biaya; saveData(); tutupModalEditItem(); renderTables(); });
+        
+        document.getElementById('formEditItem').addEventListener('submit', function(e){ 
+            e.preventDefault(); 
+            const idx = document.getElementById('editItemIdx').value; 
+            dataItems[idx].bidang = document.getElementById('eBidang').value; 
+            dataItems[idx].nama = document.getElementById('eNama').value; 
+            dataItems[idx].qty = parseInt(document.getElementById('eQty').value); 
+            dataItems[idx].satuan = document.getElementById('eSatuan').value; 
+            dataItems[idx].status = document.getElementById('eStatus').value; 
+            
+            let biaya = parseInt(document.getElementById('eBiaya').value); 
+            
+            if(dataItems[idx].status === 'Selesai' || dataItems[idx].status === 'Siap') { 
+                dataItems[idx].hAktualTotal = biaya; 
+                dataItems[idx].hAktualSatuan = Math.floor(biaya / dataItems[idx].qty); 
+            } else {
+                dataItems[idx].budgetTotal = biaya; 
+                dataItems[idx].hAktualTotal = 0;
+                dataItems[idx].hAktualSatuan = 0;
+            } 
+            
+            saveData(); 
+            tutupModalEditItem(); 
+            renderTables(); 
+        });
 
         // ==========================================
         // MENGELOLA BERITA ACARA SERAH TERIMA (BAST) 
@@ -887,59 +997,54 @@
             if(document.getElementById('containerBarangManualBAST').children.length > 1) { btn.parentElement.remove(); } else { alert("Minimal harus ada 1 barang manual!"); }
         }
 
-        // BAST DARI SISTEM
-        function siapkanBAST() { 
-            selectedItemsForBAST = []; 
-            document.querySelectorAll('.chk-bast:checked').forEach(chk => { if(chk.closest('tr').style.display !== 'none') { selectedItemsForBAST.push(chk.value); } }); 
-            if (selectedItemsForBAST.length === 0) return alert("Pilih minimal 1 barang (Centang di sebelah kiri)!"); 
+        // UPDATE: LOGIKA TOMBOL BAST GABUNGAN
+        function siapkanBASTGabungan() {
+            selectedItemsForBAST = [];
+            document.querySelectorAll('.chk-bast:checked').forEach(chk => { 
+                if(chk.closest('tr').style.display !== 'none') { selectedItemsForBAST.push(chk.value); } 
+            });
+
             isModalOpen = true; const today = new Date(); 
-            
             populateBASTBidang(); populateDatalistPengguna();
             document.getElementById('bastTanggal').valueAsDate = today; 
             document.getElementById('bastNoSurat').value = generateNoSurat(today); 
-            document.getElementById('bastMode').value = 'create_system'; 
-            document.getElementById('bastModalTitle').textContent = 'Buat BAST (Dari Sistem)'; 
-            document.getElementById('sectionBastManual').style.display = 'none';
-
             document.getElementById('p1Nama').value = activeUser.nama; autoFillPihak(1);
 
-            let itemPertama = dataItems.find(x => x.idItem === selectedItemsForBAST[0]);
-            let defaultBidang = '';
-            if(itemPertama) {
-                document.getElementById('p2Nama').value = itemPertama.pemohon; autoFillPihak(2);
-                defaultBidang = itemPertama.bidang; document.getElementById('bastBidang').value = defaultBidang;
+            if (selectedItemsForBAST.length > 0) {
+                // EKSEKUSI BAST SISTEM (Berdasarkan item tercentang)
+                document.getElementById('bastMode').value = 'create_system'; 
+                document.getElementById('bastModalTitle').textContent = 'Buat BAST (Otomatis dari Sistem)'; 
+                document.getElementById('sectionBastManual').style.display = 'none';
+
+                let itemPertama = dataItems.find(x => x.idItem === selectedItemsForBAST[0]);
+                let defaultBidang = '';
+                if(itemPertama) {
+                    document.getElementById('p2Nama').value = itemPertama.pemohon; autoFillPihak(2);
+                    defaultBidang = itemPertama.bidang; document.getElementById('bastBidang').value = defaultBidang;
+                }
+
+                document.getElementById('containerTembusan').innerHTML = '';
+                tambahTembusan(`Arsip Bidang ${document.getElementById('bastBidang').value || defaultBidang}`);
+                document.getElementById('bastCatatan').value = ''; 
+                
+            } else {
+                // EKSEKUSI BAST MANUAL (Jika tidak ada yang dicentang)
+                document.getElementById('bastMode').value = 'create_manual'; 
+                document.getElementById('bastModalTitle').textContent = 'Buat BAST Manual (Luar Sistem)'; 
+                document.getElementById('bastBidang').value = ''; 
+                
+                document.getElementById('p2Nama').value = ''; document.getElementById('p2Nipy').value = ''; document.getElementById('p2Jabatan').value = '';
+                
+                document.getElementById('containerTembusan').innerHTML = '';
+                tambahTembusan(`Arsip Bidang`);
+                document.getElementById('bastCatatan').value = ''; 
+
+                document.getElementById('sectionBastManual').style.display = 'block';
+                document.getElementById('containerBarangManualBAST').innerHTML = '';
+                tambahBarangManualBAST();
             }
 
-            document.getElementById('containerTembusan').innerHTML = '';
-            tambahTembusan(`Arsip Bidang ${document.getElementById('bastBidang').value || defaultBidang}`);
-            document.getElementById('bastCatatan').value = ''; 
             document.getElementById('modalBAST').style.display = 'flex'; 
-        }
-
-        // BAST MANUAL (LUAR SISTEM)
-        function siapkanBASTManual() {
-            isModalOpen = true; const today = new Date();
-            populateBASTBidang(); populateDatalistPengguna();
-
-            document.getElementById('bastTanggal').valueAsDate = today; 
-            document.getElementById('bastNoSurat').value = generateNoSurat(today); 
-            document.getElementById('bastMode').value = 'create_manual'; 
-            document.getElementById('bastModalTitle').textContent = 'Buat BAST Manual (Luar Sistem)'; 
-            
-            document.getElementById('bastBidang').value = ''; 
-
-            document.getElementById('p1Nama').value = activeUser.nama; autoFillPihak(1);
-            document.getElementById('p2Nama').value = ''; document.getElementById('p2Nipy').value = ''; document.getElementById('p2Jabatan').value = '';
-
-            document.getElementById('containerTembusan').innerHTML = '';
-            tambahTembusan(`Arsip Bidang`);
-            document.getElementById('bastCatatan').value = ''; 
-
-            document.getElementById('sectionBastManual').style.display = 'block';
-            document.getElementById('containerBarangManualBAST').innerHTML = '';
-            tambahBarangManualBAST();
-
-            document.getElementById('modalBAST').style.display = 'flex';
         }
 
         function tutupModalBAST() { isModalOpen = false; document.getElementById('modalBAST').style.display = 'none'; document.getElementById('formBAST').reset(); }
@@ -961,7 +1066,6 @@
             document.getElementById('containerTembusan').innerHTML = '';
             if(bast.tembusan && bast.tembusan.length > 0) { bast.tembusan.forEach(t => tambahTembusan(t)); } else { tambahTembusan(`Arsip Bidang ${bast.judul}`); }
             
-            // Check if BAST is Manual or System
             if(bast.itemsManual && bast.itemsManual.length > 0) {
                 document.getElementById('bastMode').value = 'edit_manual';
                 document.getElementById('sectionBastManual').style.display = 'block';
@@ -975,14 +1079,26 @@
             document.getElementById('modalBAST').style.display = 'flex'; 
         }
 
-        function hapusBAST(idBast) { if(confirm('Yakin hapus BAST ini?')) { dataBAST = dataBAST.filter(x => x.id !== idBast); saveData(); renderTables(); } }
+        function hapusBAST(idBast) { 
+            if(confirm('Yakin ingin menghapus dokumen BAST ini?\n\nJika ini adalah BAST dari sistem, status barang di dalamnya akan otomatis dikembalikan menjadi "Siap" agar Anda bisa membuat BAST ulang.')) { 
+                let bastTarget = dataBAST.find(x => x.id === idBast);
+                if (bastTarget && (!bastTarget.itemsManual || bastTarget.itemsManual.length === 0)) {
+                    let arrItems = bastTarget.items || bastTarget.itemsIdx || [];
+                    arrItems.forEach(val => {
+                        let item = typeof val === 'string' ? dataItems.find(x => x.idItem === val) : dataItems[val];
+                        if (item) { item.status = 'Siap'; item.tglSelesai = null; }
+                    });
+                }
+                dataBAST = dataBAST.filter(x => x.id !== idBast); 
+                saveData(); renderTables(); 
+            } 
+        }
         
         document.getElementById('formBAST').addEventListener('submit', function(e) { 
             e.preventDefault(); const mode = document.getElementById('bastMode').value; const tglBast = document.getElementById('bastTanggal').value; 
             let arrTembusan = []; document.querySelectorAll('.t-input-val').forEach(input => { if(input.value.trim() !== '') arrTembusan.push(input.value.trim()); });
             let catBast = document.getElementById('bastCatatan').value;
 
-            // Kumpulkan Item Manual Jika Mode Manual
             let arrItemsManual = [];
             if (mode === 'create_manual' || mode === 'edit_manual') {
                 document.querySelectorAll('#containerBarangManualBAST > div').forEach(row => {
@@ -1019,9 +1135,7 @@
                     dataBAST[bIndex].p2 = { nama: document.getElementById('p2Nama').value, nipy: document.getElementById('p2Nipy').value, jab: document.getElementById('p2Jabatan').value }; 
                     dataBAST[bIndex].tembusan = arrTembusan; dataBAST[bIndex].catatanBAST = catBast; 
 
-                    if (mode === 'edit_manual') {
-                        dataBAST[bIndex].itemsManual = arrItemsManual;
-                    }
+                    if (mode === 'edit_manual') { dataBAST[bIndex].itemsManual = arrItemsManual; }
                 } 
             } 
             saveData(); tutupModalBAST(); renderTables(); 
@@ -1075,18 +1189,26 @@
         function downloadWord(idBast) { const htmlContent = generateBASTHTML(idBast); const fullHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>BAST Document</title></head><body>" + htmlContent + "</body></html>"; const blob = new Blob(['\ufeff', fullHtml], { type: 'application/msword' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `BAST_${idBast}.doc`; document.body.appendChild(link); link.click(); document.body.removeChild(link); }
 
         // ==========================================
-        // FITUR FILTER & RENDER TABLE (DASHBOARD & DATA)
+        // FITUR FILTER & RENDER TABLE 
         // ==========================================
+        
         function updateFilterDropdowns() { 
-            const selBidang = document.getElementById('filterBidang'); const selPemohon = document.getElementById('filterPemohon'); const selDPBidang = document.getElementById('dpFilterBidang'); const selDPPemohon = document.getElementById('dpFilterPemohon'); const selSTBidang = document.getElementById('stFilterBidang');
-            let vB = selBidang.value; let vP = selPemohon.value; let vDPB = selDPBidang ? selDPBidang.value : ''; let vDPP = selDPPemohon ? selDPPemohon.value : ''; let vSTB = selSTBidang ? selSTBidang.value : '';
+            const selIds = ['filterBidang', 'filterPemohon', 'dpFilterBidang', 'dpFilterPemohon', 'stFilterBidang', 'stFilterPemohon', 'pengFilterBidang', 'pengFilterPemohon', 'prosFilterBidang', 'prosFilterPemohon'];
+            
             let arrBidang = []; dataItems.forEach(i => { let parts = (i.bidang || '').split(',').map(b => b.trim()).filter(b=>b); arrBidang = arrBidang.concat(parts); });
             let uniqueBidang = [...new Set(arrBidang)]; let arrPemohon = [...new Set(dataItems.map(i => i.pemohon))]; 
-            let htmlB = '<option value="">Semua Bidang</option>' + uniqueBidang.map(b => `<option value="${b}">${b}</option>`).join(''); let htmlP = '<option value="">Semua Pemohon</option>' + arrPemohon.map(p => `<option value="${p}">${p}</option>`).join(''); 
-            selBidang.innerHTML = htmlB; selPemohon.innerHTML = htmlP; selBidang.value = uniqueBidang.includes(vB) ? vB : ""; selPemohon.value = arrPemohon.includes(vP) ? vP : ""; 
-            if(selDPBidang) { selDPBidang.innerHTML = htmlB; selDPBidang.value = uniqueBidang.includes(vDPB) ? vDPB : ""; }
-            if(selDPPemohon) { selDPPemohon.innerHTML = htmlP; selDPPemohon.value = arrPemohon.includes(vDPP) ? vDPP : ""; }
-            if(selSTBidang) { selSTBidang.innerHTML = htmlB; selSTBidang.value = uniqueBidang.includes(vSTB) ? vSTB : ""; }
+            
+            let htmlB = '<option value="">Semua Bidang</option>' + uniqueBidang.map(b => `<option value="${b}">${b}</option>`).join(''); 
+            let htmlP = '<option value="">Semua Pemohon</option>' + arrPemohon.map(p => `<option value="${p}">${p}</option>`).join(''); 
+            
+            selIds.forEach(id => {
+                let el = document.getElementById(id);
+                if(el) {
+                    let currentVal = el.value;
+                    if(id.includes('Bidang')) { el.innerHTML = htmlB; el.value = uniqueBidang.includes(currentVal) ? currentVal : ""; }
+                    else if(id.includes('Pemohon')) { el.innerHTML = htmlP; el.value = arrPemohon.includes(currentVal) ? currentVal : ""; }
+                }
+            });
         }
         function resetFilter() { document.getElementById('filterStart').value = ''; document.getElementById('filterEnd').value = ''; document.getElementById('filterBidang').value = ''; document.getElementById('filterPemohon').value = ''; updateDashboard(); }
         function getVisibleDataForGlobalFilter() { let visibleItems = dataItems; if(activeUser && activeUser.role === 'pemohon') { visibleItems = dataItems.filter(i => i.username === activeUser.user); } else { const start = document.getElementById('filterStart').value; const end = document.getElementById('filterEnd').value; const b = document.getElementById('filterBidang').value; const p = document.getElementById('filterPemohon').value; visibleItems = visibleItems.filter(item => { let matchDate = true; if (start && end) matchDate = (item.tgl >= start && item.tgl <= end); return matchDate && (b === '' || item.bidang === b) && (p === '' || item.pemohon === p); }); } return visibleItems; }
@@ -1171,39 +1293,16 @@
         }
 
         function formatLampiranHTML(lampObj) { if(!lampObj) return '-'; if(lampObj.type === 'link') return `<a href="${lampObj.data}" target="_blank" class="lampiran-link">🔗 Lihat Link</a>`; if(lampObj.type === 'file') return `<a href="${lampObj.data}" download="${lampObj.name}" class="lampiran-link">⬇️ Unduh: ${lampObj.name}</a>`; return '-'; }
-        function formatCatatanHTML(catatan, guna) { let html = ''; if(guna) html += `<div style="font-size:11px; color:#34495e;"><b>Tgl Guna:</b> ${guna}</div>`; if(catatan) html += `<div style="font-size:11px; color:#7f8c8d; margin-top:3px;"><b>Catatan:</b> ${catatan}</div>`; return html; }
-
-        function renderDaftarPengadaan() {
-            if (!activeUser) return;
-            let kw = document.getElementById('dpSearch').value.toLowerCase(); let p = document.getElementById('dpFilterPemohon').value; let bd = document.getElementById('dpFilterBidang').value; let st = document.getElementById('dpFilterStatus').value;
-            const tH = document.getElementById('bodyTabelHistoriItem'); tH.innerHTML = '';
-            let filtered = dataItems.filter(i => { if(activeUser.role === 'pemohon' && i.username !== activeUser.user) return false; return (kw === '' || i.nama.toLowerCase().includes(kw) || i.pemohon.toLowerCase().includes(kw)) && (p === '' || i.pemohon === p) && (bd === '' || i.bidang === bd) && (st === '' || i.status === st); });
-            if(filtered.length === 0) { tH.innerHTML = `<tr><td colspan="12" style="text-align:center;">Data tidak ditemukan.</td></tr>`; return; }
-            filtered.forEach((i) => {
-                let actualIdx = dataItems.findIndex(orig => orig.idItem === i.idItem); 
-                let textAlasan = (i.status === 'Ditolak' && i.alasan) ? i.alasan : (i.catatan || '-'); 
-                let hSat = (i.status === 'Selesai' || i.status === 'Siap') ? formatRp(i.hAktualSatuan) : '-'; let hTot = (i.status === 'Selesai' || i.status === 'Siap') ? formatRp(i.hAktualTotal) : '-';
-                let clH = 'bg-secondary'; if(i.status==='Pending' || i.status==='Proses Belanja') clH='bg-warning'; else if(i.status==='Disetujui') clH='bg-info'; else if(i.status==='Siap') clH='bg-success'; else if(i.status==='Selesai') clH='bg-dark'; else if(i.status==='Ditolak') clH='bg-danger';
-                let btnAksi = activeUser.role !== 'pemohon' ? `<button class="btn-warning" onclick="bukaModalEditItem(${actualIdx})">Edit</button>` : '-';
-                tH.innerHTML += `<tr><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.tgl}</td><td><strong>${i.nama}</strong><br><small>${i.spek || '-'}</small></td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.budgetTotal)}</td><td>${hSat}</td><td>${hTot}</td><td>${i.tglGuna || '-'}</td><td>${i.tglSelesai || '-'}</td><td><span class="badge ${clH}">${i.status}</span></td><td style="font-size:11px; max-width: 150px;">${textAlasan}</td><td>${btnAksi}</td></tr>`;
-            });
+        
+        function formatCatatanLengkapHTML(catatan, guna, alasan, status) { 
+            let html = ''; 
+            if(guna) html += `<div style="font-size:11px; color:#34495e; margin-bottom:3px;"><b>Tgl Rencana:</b> ${guna}</div>`; 
+            if(catatan) html += `<div style="font-size:11px; color:#7f8c8d; margin-bottom:3px;"><b>Catatan:</b> ${catatan}</div>`; 
+            if((status === 'Ditolak' || status === 'Pending') && alasan) html += `<div style="font-size:11px; color:#e74c3c;"><b>Ket Admin:</b> ${alasan}</div>`; 
+            return html || '-'; 
         }
 
         function toggleCheckAll(el) { document.querySelectorAll('.chk-bast').forEach(cb => { if(cb.closest('tr').style.display !== 'none') { cb.checked = el.checked; } }); }
-
-        function renderSerahTerima() {
-            if (!activeUser || activeUser.role === 'pemohon') return;
-            const tS = document.getElementById('bodyTabelSerahTerima'); tS.innerHTML = '';
-            let filterB = document.getElementById('stFilterBidang').value;
-            document.getElementById('chkAllSerahTerima').checked = false; 
-            dataItems.forEach((i, idx) => {
-                if (i.status === 'Siap') {
-                    let isMatch = (filterB === '' || i.bidang === filterB); let displayStyle = isMatch ? '' : 'style="display:none;"';
-                    let actualIdx = dataItems.findIndex(orig => orig.idItem === i.idItem);
-                    tS.innerHTML += `<tr ${displayStyle}><td style="text-align:center;"><input type="checkbox" class="chk-bast" value="${i.idItem}" style="transform: scale(1.2); cursor:pointer;"></td><td><strong>${i.idItem}</strong></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.nama}</td><td>${i.qty} ${i.satuan}</td><td><strong>${formatRp(i.hAktualTotal)}</strong></td><td><span class="badge bg-success">Siap</span> <button class="btn-danger" style="margin-top:5px; padding:3px 6px; font-size:10px;" onclick="batalkanSiap(${actualIdx})">Batalkan</button></td></tr>`;
-                }
-            });
-        }
 
         function getFilteredHistori() { let start = document.getElementById('dlStartDate').value; let end = document.getElementById('dlEndDate').value; return dataItems.filter(i => { if(activeUser && activeUser.role === 'pemohon' && i.username !== activeUser.user) return false; if(start && i.tgl < start) return false; if(end && i.tgl > end) return false; return true; }); }
         function getPeriodeText() { let start = document.getElementById('dlStartDate').value; let end = document.getElementById('dlEndDate').value; if (start && end) return `${start}_sd_${end}`; if (start) return `Sejak_${start}`; if (end) return `Hingga_${end}`; return `Semua_Waktu`; }
@@ -1227,6 +1326,9 @@
             setTimeout(() => { html2pdf().set(opt).from(container).save().then(() => { container.innerHTML = ''; isModalOpen = false; }); }, 300);
         }
 
+        // ==========================================
+        // RENDER TABLES
+        // ==========================================
         function renderTables() {
             try {
                 updateFilterDropdowns(); updateDashboard(); 
@@ -1241,27 +1343,83 @@
                     });
                 }
 
-                const tP=document.getElementById('bodyTabelPengajuan'), tPr=document.getElementById('bodyTabelProses');
-                tP.innerHTML=''; tPr.innerHTML=''; 
+                let fPengSearch = document.getElementById('pengSearch') ? document.getElementById('pengSearch').value.toLowerCase() : '';
+                let fPengPemohon = document.getElementById('pengFilterPemohon') ? document.getElementById('pengFilterPemohon').value : '';
+                let fPengBidang = document.getElementById('pengFilterBidang') ? document.getElementById('pengFilterBidang').value : '';
+
+                let fProsSearch = document.getElementById('prosSearch') ? document.getElementById('prosSearch').value.toLowerCase() : '';
+                let fProsPemohon = document.getElementById('prosFilterPemohon') ? document.getElementById('prosFilterPemohon').value : '';
+                let fProsBidang = document.getElementById('prosFilterBidang') ? document.getElementById('prosFilterBidang').value : '';
+
+                let fStSearch = document.getElementById('stSearch') ? document.getElementById('stSearch').value.toLowerCase() : '';
+                let fStPemohon = document.getElementById('stFilterPemohon') ? document.getElementById('stFilterPemohon').value : '';
+                let fStBidang = document.getElementById('stFilterBidang') ? document.getElementById('stFilterBidang').value : '';
+
+                let fDpSearch = document.getElementById('dpSearch') ? document.getElementById('dpSearch').value.toLowerCase() : '';
+                let fDpPemohon = document.getElementById('dpFilterPemohon') ? document.getElementById('dpFilterPemohon').value : '';
+                let fDpBidang = document.getElementById('dpFilterBidang') ? document.getElementById('dpFilterBidang').value : '';
+                let fDpStatus = document.getElementById('dpFilterStatus') ? document.getElementById('dpFilterStatus').value : '';
+
+                const tP=document.getElementById('bodyTabelPengajuan'), tPr=document.getElementById('bodyTabelProses'), tS=document.getElementById('bodyTabelSerahTerima'), tH=document.getElementById('bodyTabelHistoriItem');
+                tP.innerHTML=''; tPr.innerHTML=''; tS.innerHTML=''; tH.innerHTML='';
+                document.getElementById('chkAllSerahTerima').checked = false; 
 
                 dataItems.forEach((i, idx) => {
                     if(activeUser && activeUser.role === 'pemohon' && i.username !== activeUser.user) return;
-                    let tr = document.createElement('tr');
-                    if (i.status === 'Pengajuan' || i.status === 'Pending' || (activeUser && activeUser.role === 'pemohon' && i.status === 'Ditolak')) {
-                        let actionBtn = '';
-                        if (activeUser && activeUser.role === 'asesor') { let btnPending = i.status === 'Pengajuan' ? `<button class="btn-warning" onclick="mintaAlasan(${idx}, 'Pending')">⏳</button>` : ''; actionBtn = `<button class="btn-success" onclick="ubahStatus(${idx}, 'Disetujui')">✔</button> ${btnPending} <button class="btn-danger" onclick="mintaAlasan(${idx}, 'Ditolak')">✖</button> <button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏</button>`; } else if (activeUser && activeUser.role === 'admin') { actionBtn = `<button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`; } else if (activeUser && activeUser.role === 'pemohon') { if (i.status === 'Pengajuan' || i.status === 'Pending') { actionBtn = `<button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`; } else if (i.status === 'Ditolak') { actionBtn = `<button class="btn-primary" onclick="bukaModalEditPengajuan(${idx})">🔄 Ajukan Ulang</button>`; } }
-                        
-                        let bClass = i.status === 'Pending' ? 'bg-warning' : (i.status === 'Ditolak' ? 'bg-danger' : 'bg-secondary'); 
-                        let txtAlasan = (i.status === 'Pending' || i.status === 'Ditolak') ? `<br><span style="color:#e74c3c; font-size:11px; font-style:italic;">Ket: ${i.alasan}</span>` : '';
-                        let lampHtml = formatLampiranHTML(i.lampiran); let noteHtml = formatCatatanHTML(i.catatan, i.tglGuna);
+                    
+                    let hSat = (i.status === 'Selesai' || i.status === 'Siap') ? formatRp(i.hAktualSatuan) : '-'; 
+                    let hTot = (i.status === 'Selesai' || i.status === 'Siap') ? formatRp(i.hAktualTotal) : '-';
+                    let clH = 'bg-secondary'; if(i.status==='Pending' || i.status==='Proses Belanja') clH='bg-warning'; else if(i.status==='Disetujui') clH='bg-info'; else if(i.status==='Siap') clH='bg-success'; else if(i.status==='Selesai') clH='bg-dark'; else if(i.status==='Ditolak') clH='bg-danger';
+                    
+                    let lampHtml = formatLampiranHTML(i.lampiran); 
+                    let ketHtml = formatCatatanLengkapHTML(i.catatan, i.tglGuna, i.alasan, i.status);
 
-                        tr.innerHTML = `<td><strong>${i.idItem}</strong></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td style="white-space:normal;">${i.nama} (${i.qty} ${i.satuan})${txtAlasan}</td><td style="max-width:200px;">${lampHtml}${noteHtml}</td><td>${i.tgl}</td><td>${formatRp(i.budgetTotal)}</td><td><span class="badge ${bClass}">${i.status}</span></td><td style="min-width: 100px;">${actionBtn}</td>`; tP.appendChild(tr);
-                    } else if (i.status === 'Disetujui' || i.status === 'Proses Belanja') {
-                        if (activeUser && activeUser.role !== 'pemohon') { let btn = i.status === 'Disetujui' ? `<button class="btn-warning" onclick="ubahStatus(${idx}, 'Proses Belanja')">Proses</button>` : `<button class="btn-success" onclick="bukaModalHarga(${idx})">Selesai</button>`; tr.innerHTML = `<td><strong>${i.idItem}</strong></td><td>${i.pemohon}</td><td>${i.nama}</td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.budgetTotal)}</td><td><span class="badge ${i.status==='Disetujui'?'bg-info':'bg-warning'}">${i.status}</span></td><td>${btn}</td>`; tPr.appendChild(tr); }
+                    // 1. RENDER PENGAJUAN
+                    if (i.status === 'Pengajuan' || i.status === 'Pending' || (activeUser && activeUser.role === 'pemohon' && i.status === 'Ditolak')) {
+                        let matchPeng = (fPengSearch === '' || i.nama.toLowerCase().includes(fPengSearch) || i.pemohon.toLowerCase().includes(fPengSearch)) && (fPengPemohon === '' || i.pemohon === fPengPemohon) && (fPengBidang === '' || i.bidang === fPengBidang);
+                        
+                        if(matchPeng) {
+                            let actionBtn = '';
+                            if (activeUser && activeUser.role === 'asesor') { let btnPending = i.status === 'Pengajuan' ? `<button class="btn-warning" onclick="mintaAlasan(${idx}, 'Pending')">⏳</button>` : ''; actionBtn = `<button class="btn-success" onclick="ubahStatus(${idx}, 'Disetujui')">✔</button> ${btnPending} <button class="btn-danger" onclick="mintaAlasan(${idx}, 'Ditolak')">✖</button> <button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏</button>`; } else if (activeUser && activeUser.role === 'admin') { actionBtn = `<button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`; } else if (activeUser && activeUser.role === 'pemohon') { if (i.status === 'Pengajuan' || i.status === 'Pending') { actionBtn = `<button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`; } else if (i.status === 'Ditolak') { actionBtn = `<button class="btn-primary" onclick="bukaModalEditPengajuan(${idx})">🔄 Ajukan Ulang</button>`; } }
+                            
+                            tP.innerHTML += `<tr><td><strong>${i.idItem}</strong></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td style="white-space:normal;">${i.nama} (${i.qty} ${i.satuan})</td><td style="max-width:200px;">${lampHtml}</td><td>${i.tgl}</td><td>${formatRp(i.budgetTotal)}</td><td><span class="badge ${clH}">${i.status}</span></td><td style="min-width: 100px;">${actionBtn}</td></tr>`;
+                        }
                     } 
+                    
+                    // 2. RENDER PROSES (Dihilangkan: Harga Satuan, Harga Total, Tgl Selesai)
+                    if (i.status === 'Disetujui' || i.status === 'Proses Belanja') {
+                        if (activeUser && activeUser.role !== 'pemohon') { 
+                            let matchPros = (fProsSearch === '' || i.nama.toLowerCase().includes(fProsSearch) || i.pemohon.toLowerCase().includes(fProsSearch)) && (fProsPemohon === '' || i.pemohon === fProsPemohon) && (fProsBidang === '' || i.bidang === fProsBidang);
+                            
+                            if (matchPros) {
+                                let btn = i.status === 'Disetujui' ? `<button class="btn-warning" onclick="ubahStatus(${idx}, 'Proses Belanja')">Proses</button>` : `<button class="btn-success" onclick="bukaModalHarga(${idx})">Selesai</button>`; 
+                                
+                                tPr.innerHTML += `<tr><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.tgl}</td><td><strong>${i.nama}</strong><br><small>${i.spek || '-'}</small></td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.budgetTotal)}</td><td>${i.tglGuna || '-'}</td><td><span class="badge ${clH}">${i.status}</span></td><td style="font-size:11px; max-width: 150px;">${lampHtml}<br>${ketHtml}</td><td>${btn}</td></tr>`;
+                            }
+                        }
+                    }
+
+                    // 3. RENDER SERAH TERIMA (Dihilangkan: Budget, Tgl Rencana, Lampiran)
+                    if (i.status === 'Siap') {
+                        if (activeUser && activeUser.role !== 'pemohon') { 
+                            let matchSt = (fStSearch === '' || i.nama.toLowerCase().includes(fStSearch) || i.pemohon.toLowerCase().includes(fStSearch)) && (fStPemohon === '' || i.pemohon === fStPemohon) && (fStBidang === '' || i.bidang === fStBidang);
+                            
+                            if (matchSt) {
+                                tS.innerHTML += `<tr><td style="text-align:center;"><input type="checkbox" class="chk-bast" value="${i.idItem}" style="transform: scale(1.2); cursor:pointer;"></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.tgl}</td><td><strong>${i.nama}</strong><br><small>${i.spek || '-'}</small></td><td>${i.qty} ${i.satuan}</td><td>${hSat}</td><td><strong>${hTot}</strong></td><td>${i.tglSelesai || '-'}</td><td><span class="badge bg-success">Siap</span></td><td><button class="btn-danger" onclick="batalkanSiap(${idx})">Batalkan Siap</button></td></tr>`;
+                            }
+                        }
+                    }
+
+                    // 4. RENDER DATABASE PENGADAAN
+                    let matchDp = (fDpSearch === '' || i.nama.toLowerCase().includes(fDpSearch) || i.pemohon.toLowerCase().includes(fDpSearch)) && (fDpPemohon === '' || i.pemohon === fDpPemohon) && (fDpBidang === '' || i.bidang === fDpBidang) && (fDpStatus === '' || i.status === fDpStatus);
+                    
+                    if (matchDp) {
+                        let btnAksi = activeUser.role !== 'pemohon' ? `<button class="btn-warning" onclick="bukaModalEditItem(${idx})">Edit Item</button>` : '-';
+                        tH.innerHTML += `<tr><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.tgl}</td><td><strong>${i.nama}</strong><br><small>${i.spek || '-'}</small></td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.budgetTotal)}</td><td>${hSat}</td><td>${hTot}</td><td>${i.tglGuna || '-'}</td><td>${i.tglSelesai || '-'}</td><td><span class="badge ${clH}">${i.status}</span></td><td style="font-size:11px; max-width: 150px;">${lampHtml}<br>${ketHtml}</td><td>${btnAksi}</td></tr>`;
+                    }
                 });
 
-                renderSerahTerima(); renderDaftarPengadaan(); renderKeuangan(); 
+                renderKeuangan(); 
 
                 if (activeUser && activeUser.role !== 'pemohon') {
                     document.getElementById('bodyTabelBAST').innerHTML = dataBAST.map(b => {
