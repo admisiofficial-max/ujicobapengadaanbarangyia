@@ -152,6 +152,9 @@
             .modal { padding: 20px 10px; }
             .modal-content { padding: 20px 15px; }
             .finance-filter-panel { flex-direction: column; align-items: stretch; }
+            
+            #pemohonBidangContainer { margin-right: 5px !important; padding: 2px 5px !important; }
+            #pemohonBidangContainer span { display: none; }
         }
     </style>
 </head>
@@ -181,10 +184,15 @@
     <div class="main-dashboard" id="dashboardPage">
         <header>
             <div class="app-title">
-                Sistem Pengadaan & Keuangan v13.2
+                Sistem Pengadaan & Keuangan v13.3
                 <span class="sync-indicator" id="syncIcon">● LIVE SYNC</span>
             </div>
             <div class="profile-section">
+                <!-- PEMBATASAN BIDANG UNTUK PEMOHON -->
+                <div id="pemohonBidangContainer" style="display:none; margin-right:15px; align-items:center; gap:8px; background:#f1f2f6; padding:4px 10px; border-radius:20px; border:1px solid #ddd;">
+                    <span style="font-size:11px; font-weight:bold; color:#2c3e50;">Bidang Aktif:</span>
+                    <select id="pemohonBidangSelector" onchange="changePemohonBidang()" style="padding:2px 5px; border-radius:4px; font-size:12px; border:1px solid #ccc; background:#fff; outline:none; font-weight:bold; color:#3498db; cursor:pointer;"></select>
+                </div>
                 <div><span id="displayNama">Nama User</span><span class="role-badge" id="displayRole">Role</span></div>
                 <div class="profile-pic" id="displayInisial">U</div>
             </div>
@@ -663,7 +671,7 @@
         </div>
     </div>
     
-    <!-- MODAL INPUT HARGA AKTUAL (Fleksibel Non-Otomatis) -->
+    <!-- MODAL INPUT HARGA AKTUAL -->
     <div id="modalHarga" class="modal">
         <div class="modal-content modal-sm">
             <span class="close-modal" onclick="tutupModalHarga()">&times;</span>
@@ -761,7 +769,7 @@
         </div>
     </div>
     
-    <!-- MODAL EDIT ITEM UNIVERSAL (Pemisahan Budget vs Aktual) -->
+    <!-- MODAL EDIT ITEM UNIVERSAL -->
     <div id="modalEditItem" class="modal">
         <div class="modal-content modal-sm">
             <span class="close-modal" onclick="tutupModalEditItem()">&times;</span>
@@ -809,6 +817,8 @@
         let activeUser = JSON.parse(localStorage.getItem('loggedInUser')) || null; 
         let selectedItemsForBAST = []; let isModalOpen = false; 
         let chartItemsInst = null, chartBiayaInst = null, chartWaktuInst = null, chartTargetInst = null;
+        
+        let currentPemohonBidang = ""; // Variabel global penyimpan bidang pemohon yang sedang aktif
 
         function shouldBackgroundRender() {
             if (!activeUser || isModalOpen) return false;
@@ -876,15 +886,35 @@
         function toggleSubMenu(id) { let el = document.getElementById(id); if(window.innerWidth <= 768) { el.classList.toggle('active-mobile'); } else { el.style.display = (el.style.display === 'block') ? 'none' : 'block'; } }
         function switchMenu(m) { document.querySelectorAll('.menu-list li, .sub-menu li').forEach(l => l.classList.remove('active')); document.querySelectorAll('.page-content').forEach(c => c.classList.remove('active')); let targetMenu = document.getElementById('menu-'+m); if(targetMenu) { targetMenu.classList.add('active'); if(targetMenu.parentElement.classList.contains('sub-menu')) { document.getElementById('menu-database').classList.add('active'); } } let targetContent = document.getElementById('content-'+m); if(targetContent) targetContent.classList.add('active'); if(m === 'dashboard') updateDashboardChart(); if(window.innerWidth <= 768 && targetMenu && targetMenu.parentElement.classList.contains('sub-menu')) { document.getElementById('subDB').classList.remove('active-mobile'); } }
 
+        function changePemohonBidang() {
+            currentPemohonBidang = document.getElementById('pemohonBidangSelector').value;
+            renderTables();
+        }
+
         function applyRolePermissions() {
             document.getElementById('menu-proses').style.display = 'block'; document.getElementById('menu-serah-terima').style.display = 'block'; document.getElementById('panelFilter').style.display = 'grid'; document.getElementById('menu-database').style.display = 'flex';
             if (activeUser.user === 'author') document.getElementById('menu-pengaturan').style.display = 'block'; else document.getElementById('menu-pengaturan').style.display = 'none';
+            
             if (activeUser.role === 'pemohon') { 
                 document.getElementById('menu-proses').style.display = 'none'; document.getElementById('menu-serah-terima').style.display = 'none'; document.getElementById('menu-keuangan').style.display = 'none'; document.getElementById('panelFilter').style.display = 'none'; document.getElementById('card-avg-time').style.display = 'none'; document.getElementById('card-target').style.display = 'none'; 
                 document.getElementById('menu-db-user').style.display = 'none'; document.getElementById('menu-db-bast').style.display = 'none'; document.getElementById('menu-db-pengadaan').style.display = 'block';
                 document.getElementById('dpFilterPemohon').style.display = 'none'; document.getElementById('dpFilterBidang').style.display = 'none';
                 if (window.innerWidth > 768) { document.getElementById('mainStatsGrid').style.gridTemplateColumns = 'repeat(2, 1fr)'; } 
+                
+                // Menampilkan Selector Bidang Khusus Pemohon
+                let arrBidang = activeUser.bidang.split(',').map(b => b.trim()).filter(b => b);
+                document.getElementById('pemohonBidangContainer').style.display = 'flex';
+                let sel = document.getElementById('pemohonBidangSelector');
+                sel.innerHTML = arrBidang.map(b => `<option value="${b}">${b}</option>`).join('');
+                if(!currentPemohonBidang || !arrBidang.includes(currentPemohonBidang)) {
+                    currentPemohonBidang = arrBidang[0] || '';
+                }
+                sel.value = currentPemohonBidang;
+
             } else { 
+                document.getElementById('pemohonBidangContainer').style.display = 'none';
+                currentPemohonBidang = "";
+                
                 document.getElementById('menu-keuangan').style.display = 'block'; 
                 document.getElementById('menu-db-user').style.display = (activeUser.role === 'asesor') ? 'block' : 'none'; document.getElementById('menu-db-bast').style.display = 'block'; document.getElementById('menu-db-pengadaan').style.display = 'block';
                 document.getElementById('dpFilterPemohon').style.display = 'inline-block'; document.getElementById('dpFilterBidang').style.display = 'inline-block';
@@ -926,8 +956,40 @@
         // ==========================================
         let jumlahBarangPengajuan = 0; const maxBarangPengajuan = 10;
         function populatePemohonBidang() { let selP = document.getElementById('inputPemohon'); let selB = document.getElementById('inputBidang'); selP.innerHTML = ''; selB.innerHTML = ''; sysUsers.forEach(u => { if(u.user !== 'author') selP.innerHTML += `<option value="${u.nama}" data-bidang="${u.bidang}">${u.nama} (${u.role})</option>`; }); }
-        function autoFillBidang() { let selP = document.getElementById('inputPemohon'); let selB = document.getElementById('inputBidang'); let opt = selP.options[selP.selectedIndex]; if(opt) { let bidangStr = opt.getAttribute('data-bidang') || ''; let arrBidang = bidangStr.split(',').map(b => b.trim()).filter(b => b); selB.innerHTML = arrBidang.map(b => `<option value="${b}">${b}</option>`).join(''); } }
-        function bukaModalPengajuan() { isModalOpen = true; document.getElementById('modalPengajuan').style.display = "flex"; populatePemohonBidang(); document.getElementById('daftarBarangContainer').innerHTML=''; jumlahBarangPengajuan=0; tambahBarang(); if(activeUser.role === 'pemohon') { document.getElementById('inputPemohon').value = activeUser.nama; autoFillBidang(); document.getElementById('inputPemohon').setAttribute('disabled', 'true'); } else { document.getElementById('inputPemohon').removeAttribute('disabled'); autoFillBidang(); } document.getElementById('inputTanggal').valueAsDate = new Date(); }
+        
+        function autoFillBidang() { 
+            let selP = document.getElementById('inputPemohon'); 
+            let selB = document.getElementById('inputBidang'); 
+            let opt = selP.options[selP.selectedIndex]; 
+            if(opt) { 
+                let bidangStr = opt.getAttribute('data-bidang') || ''; 
+                let arrBidang = bidangStr.split(',').map(b => b.trim()).filter(b => b); 
+                selB.innerHTML = arrBidang.map(b => `<option value="${b}">${b}</option>`).join(''); 
+                
+                // Set default pilihan sesuai bidang pemohon saat ini
+                if(activeUser && activeUser.role === 'pemohon' && currentPemohonBidang) {
+                    selB.value = currentPemohonBidang; 
+                }
+            } 
+        }
+
+        function bukaModalPengajuan() { 
+            isModalOpen = true; document.getElementById('modalPengajuan').style.display = "flex"; 
+            populatePemohonBidang(); 
+            document.getElementById('daftarBarangContainer').innerHTML=''; 
+            jumlahBarangPengajuan=0; tambahBarang(); 
+            
+            if(activeUser.role === 'pemohon') { 
+                document.getElementById('inputPemohon').value = activeUser.nama; 
+                autoFillBidang(); 
+                document.getElementById('inputPemohon').setAttribute('disabled', 'true'); 
+            } else { 
+                document.getElementById('inputPemohon').removeAttribute('disabled'); 
+                autoFillBidang(); 
+            } 
+            document.getElementById('inputTanggal').valueAsDate = new Date(); 
+        }
+
         function tutupModalPengajuan() { isModalOpen = false; document.getElementById('modalPengajuan').style.display = "none"; document.getElementById('formInputPengajuan').reset(); }
         function tambahBarang() { if (jumlahBarangPengajuan >= maxBarangPengajuan) return alert("Maksimal 10 barang per pengajuan!"); jumlahBarangPengajuan++; const div = document.createElement('div'); div.classList.add('item-container'); div.id = `item-pengajuan-${jumlahBarangPengajuan}`; div.innerHTML = `<span class="remove-item-btn" onclick="hapusBarang(this)">✖</span><div class="item-card-inner"><div class="form-grid-2"><div class="input-group"><label>Nama Barang / Pekerjaan</label><input type="text" class="i-nama" required></div><div class="input-group"><label>Spesifikasi Detail</label><input type="text" class="i-spek"></div></div><div class="form-grid-3"><div class="input-group"><label>Kuantitas (Qty)</label><input type="number" class="i-jumlah" required></div><div class="input-group"><label>Satuan</label><input type="text" class="i-satuan" placeholder="Contoh: Unit, Pcs, Liter" required></div><div class="input-group"><label>Estimasi Total Budget (Rp)</label><input type="number" class="i-budget" required></div></div><div class="form-grid-2"><div class="input-group"><label>Tgl Rencana Penggunaan</label><input type="date" class="i-tgl-guna" required></div><div class="input-group"><label>Catatan Tambahan</label><input type="text" class="i-catatan" placeholder="Keterangan lain (Opsional)"></div></div><div class="form-grid-2" style="background:#f9ca2414; padding:10px; border-radius:5px; margin-bottom:0;"><div class="input-group" style="margin-bottom:0;"><label>Lampiran (Link Google Drive / URL)</label><input type="text" class="i-link" placeholder="https://drive.google.com/..."></div><div class="input-group" style="margin-bottom:0;"><label>Atau Upload (Maks 40KB - JPG/PNG/PDF)</label><input type="file" class="i-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.cdr,.svg"></div></div></div>`; document.getElementById('daftarBarangContainer').appendChild(div); }
         function hapusBarang(el) { if(jumlahBarangPengajuan > 1) { el.parentElement.remove(); jumlahBarangPengajuan--; } else { alert("Minimal harus ada 1 barang."); } }
@@ -937,7 +999,7 @@
         function tutupModalEditPengajuan() { isModalOpen = false; document.getElementById('modalEditPengajuan').style.display = 'none'; }
         document.getElementById('formEditPengajuan').addEventListener('submit', function(e) { e.preventDefault(); let idx = document.getElementById('epIdx').value; dataItems[idx].nama = document.getElementById('epNama').value; dataItems[idx].spek = document.getElementById('epSpek').value; dataItems[idx].qty = parseInt(document.getElementById('epQty').value); dataItems[idx].satuan = document.getElementById('epSatuan').value; dataItems[idx].budgetTotal = parseInt(document.getElementById('epBudget').value); dataItems[idx].tglGuna = document.getElementById('epGuna').value; dataItems[idx].catatan = document.getElementById('epCatatan').value; let lk = document.getElementById('epLampiran').value.trim(); if(lk !== '') dataItems[idx].lampiran = { type: 'link', data: lk }; if(dataItems[idx].status === 'Ditolak') { dataItems[idx].status = 'Pengajuan'; dataItems[idx].alasan = ''; } saveData(); tutupModalEditPengajuan(); renderTables(); });
         
-        // UPDATE: BUKA MODAL HARGA (NON-OTOMATIS)
+        // BUKA MODAL HARGA (NON-OTOMATIS)
         function bukaModalHarga(idx) { 
             isModalOpen = true; 
             document.getElementById('indexItemAktif').value = idx; 
@@ -960,7 +1022,7 @@
         function ubahStatus(idx, st) { dataItems[idx].status = st; if(st === 'Disetujui') dataItems[idx].alasan = ''; saveData(); renderTables(); }
         function batalkanSiap(idx) { if(confirm("Batalkan status 'Siap' pada item ini dan kembalikan ke 'Proses Belanja'?")) { dataItems[idx].status = 'Proses Belanja'; dataItems[idx].hAktualSatuan = 0; dataItems[idx].hAktualTotal = 0; saveData(); renderTables(); } }
         
-        // UPDATE: EDIT ITEM (Pemisahan Budget & Aktual)
+        // EDIT ITEM (Pemisahan Budget & Aktual)
         function bukaModalEditItem(idx) { 
             isModalOpen = true; 
             const item = dataItems[idx]; 
@@ -989,9 +1051,7 @@
             dataItems[idx].hAktualTotal = parseInt(document.getElementById('eHargaTotal').value) || 0; 
             dataItems[idx].status = document.getElementById('eStatus').value; 
             
-            saveData(); 
-            tutupModalEditItem(); 
-            renderTables(); 
+            saveData(); tutupModalEditItem(); renderTables(); 
         });
 
         // ==========================================
@@ -1115,7 +1175,21 @@
             selIds.forEach(id => { let el = document.getElementById(id); if(el) { let currentVal = el.value; if(id.includes('Bidang')) { el.innerHTML = htmlB; el.value = uniqueBidang.includes(currentVal) ? currentVal : ""; } else if(id.includes('Pemohon')) { el.innerHTML = htmlP; el.value = arrPemohon.includes(currentVal) ? currentVal : ""; } } });
         }
         function resetFilter() { document.getElementById('filterStart').value = ''; document.getElementById('filterEnd').value = ''; document.getElementById('filterBidang').value = ''; document.getElementById('filterPemohon').value = ''; updateDashboard(); }
-        function getVisibleDataForGlobalFilter() { let visibleItems = dataItems; if(activeUser && activeUser.role === 'pemohon') { visibleItems = dataItems.filter(i => i.username === activeUser.user); } else { const start = document.getElementById('filterStart').value; const end = document.getElementById('filterEnd').value; const b = document.getElementById('filterBidang').value; const p = document.getElementById('filterPemohon').value; visibleItems = visibleItems.filter(item => { let matchDate = true; if (start && end) matchDate = (item.tgl >= start && item.tgl <= end); return matchDate && (b === '' || item.bidang === b) && (p === '' || item.pemohon === p); }); } return visibleItems; }
+        
+        function getVisibleDataForGlobalFilter() { 
+            let visibleItems = dataItems; 
+            if(activeUser && activeUser.role === 'pemohon') { 
+                // Filter: Hanya data milik user ini DAN berada dalam Bidang yang sedang ia buka
+                visibleItems = dataItems.filter(i => i.username === activeUser.user && i.bidang === currentPemohonBidang); 
+            } else { 
+                const start = document.getElementById('filterStart').value; 
+                const end = document.getElementById('filterEnd').value; 
+                const b = document.getElementById('filterBidang').value; 
+                const p = document.getElementById('filterPemohon').value; 
+                visibleItems = visibleItems.filter(item => { let matchDate = true; if (start && end) matchDate = (item.tgl >= start && item.tgl <= end); return matchDate && (b === '' || item.bidang === b) && (p === '' || item.pemohon === p); }); 
+            } 
+            return visibleItems; 
+        }
         
         function updateDashboardChart() {
             try {
@@ -1150,7 +1224,6 @@
             updateDashboardChart();
         }
 
-        // UPDATE: PREVIEW LAMPIRAN MODAL
         function formatLampiranHTML(lampObj, idx) { 
             if(!lampObj) return '-'; 
             if(lampObj.type === 'link') return `<a href="${lampObj.data}" target="_blank" class="lampiran-link">🔗 Lihat Link Drive</a>`; 
@@ -1195,7 +1268,20 @@
         function formatCatatanLengkapHTML(catatan, guna, alasan, status) { let html = ''; if(guna) html += `<div style="font-size:11px; color:#34495e; margin-bottom:3px;"><b>Tgl Rencana:</b> ${guna}</div>`; if(catatan) html += `<div style="font-size:11px; color:#7f8c8d; margin-bottom:3px;"><b>Catatan:</b> ${catatan}</div>`; if((status === 'Ditolak' || status === 'Pending') && alasan) html += `<div style="font-size:11px; color:#e74c3c;"><b>Ket Admin:</b> ${alasan}</div>`; return html || '-'; }
         function toggleCheckAll(el) { document.querySelectorAll('.chk-bast').forEach(cb => { if(cb.closest('tr').style.display !== 'none') { cb.checked = el.checked; } }); }
 
-        function getFilteredHistori() { let start = document.getElementById('dlStartDate').value; let end = document.getElementById('dlEndDate').value; return dataItems.filter(i => { if(activeUser && activeUser.role === 'pemohon' && i.username !== activeUser.user) return false; if(start && i.tgl < start) return false; if(end && i.tgl > end) return false; return true; }); }
+        function getFilteredHistori() { 
+            let start = document.getElementById('dlStartDate').value; 
+            let end = document.getElementById('dlEndDate').value; 
+            return dataItems.filter(i => { 
+                if(activeUser && activeUser.role === 'pemohon') {
+                    // Filter berdasarkan user DAN bidang aktifnya
+                    if(i.username !== activeUser.user || i.bidang !== currentPemohonBidang) return false;
+                }
+                if(start && i.tgl < start) return false; 
+                if(end && i.tgl > end) return false; 
+                return true; 
+            }); 
+        }
+        
         function getPeriodeText() { let start = document.getElementById('dlStartDate').value; let end = document.getElementById('dlEndDate').value; if (start && end) return `${start}_sd_${end}`; if (start) return `Sejak_${start}`; if (end) return `Hingga_${end}`; return `Semua_Waktu`; }
 
         function downloadHistoriExcel() {
@@ -1242,7 +1328,11 @@
                 document.getElementById('chkAllSerahTerima').checked = false; 
 
                 dataItems.forEach((i, idx) => {
-                    if(activeUser && activeUser.role === 'pemohon' && i.username !== activeUser.user) return;
+                    
+                    // Filter Khusus Pemohon (Hanya menampilkan data dia + sesuai bidang aktif)
+                    if(activeUser && activeUser.role === 'pemohon') {
+                        if (i.username !== activeUser.user || i.bidang !== currentPemohonBidang) return;
+                    }
                     
                     let hSat = (i.status === 'Selesai' || i.status === 'Siap') ? formatRp(i.hAktualSatuan) : '-'; 
                     let hTot = (i.status === 'Selesai' || i.status === 'Siap') ? formatRp(i.hAktualTotal) : '-';
