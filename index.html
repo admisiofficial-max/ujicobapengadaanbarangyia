@@ -110,7 +110,7 @@
         .tag-list span { background: #fff; padding: 2px 5px; border: 1px solid #ddd; border-radius: 3px; display: inline-block; margin-right: 5px; cursor: pointer;}
 
         .lampiran-info { display: flex; gap: 5px; align-items: center; font-size: 11px; margin-top: 5px; }
-        .lampiran-link { color: #3498db; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; }
+        .lampiran-link { color: #3498db; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; cursor: pointer;}
         .lampiran-link:hover { text-decoration: underline; }
 
         .filter-row-inline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #e9ecef; }
@@ -181,7 +181,7 @@
     <div class="main-dashboard" id="dashboardPage">
         <header>
             <div class="app-title">
-                Sistem Pengadaan & Keuangan v13.1
+                Sistem Pengadaan & Keuangan v13.2
                 <span class="sync-indicator" id="syncIcon">● LIVE SYNC</span>
             </div>
             <div class="profile-section">
@@ -336,7 +336,7 @@
                 </div>
             </div>
             
-            <!-- TABEL PROSES BELANJA (Diupdate) -->
+            <!-- TABEL PROSES BELANJA -->
             <div id="content-proses" class="page-content">
                 <div class="card">
                     <h2>Antrean Proses Belanja</h2>
@@ -367,13 +367,12 @@
                 </div>
             </div>
 
-            <!-- TABEL SERAH TERIMA (Diupdate) -->
+            <!-- TABEL SERAH TERIMA -->
             <div id="content-serah-terima" class="page-content">
                 <div class="card">
                     <div class="header-flex">
                         <h2>Barang Siap Serah Terima</h2>
                         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                            <!-- Tombol Digabung -->
                             <button class="btn-primary" onclick="siapkanBASTGabungan()" style="width:auto; font-weight:bold;">📝 Buat BAST (Otomatis / Manual)</button>
                         </div>
                     </div>
@@ -477,9 +476,9 @@
                                 <th>Tgl Pengajuan</th>
                                 <th>Barang & Spek</th>
                                 <th>Qty & Satuan</th>
-                                <th>Budget</th>
-                                <th>Harga Satuan<br><small>(Saat Belanja)</small></th>
-                                <th>Harga Total<br><small>(Saat Belanja)</small></th>
+                                <th>Estimasi Budget</th>
+                                <th>Harga Satuan<br><small>(Asli)</small></th>
+                                <th>Harga Total<br><small>(Asli)</small></th>
                                 <th>Tgl Rencana<br>Digunakan</th>
                                 <th>Tgl Selesai</th>
                                 <th>Status</th>
@@ -502,7 +501,19 @@
         </main>
     </div>
 
-    <!-- MODAL POPUP -->
+    <!-- MODAL POPUP PREVIEW LAMPIRAN -->
+    <div id="modalPreviewLampiran" class="modal" style="z-index: 1050;">
+        <div class="modal-content" style="max-width: 800px; text-align:center;">
+            <span class="close-modal" onclick="tutupPreviewLampiran()">&times;</span>
+            <h3 id="previewTitle" style="margin-bottom: 15px; color:#2c3e50;">Preview Lampiran</h3>
+            <div id="previewContainer" style="margin-bottom: 15px; max-height: 65vh; overflow: auto; background:#f9f9f9; padding:10px; border-radius:5px;">
+                <!-- Konten gambar / iframe PDF akan disuntik di sini -->
+            </div>
+            <a id="btnDownloadLampiran" href="#" download="" class="btn-primary" style="display:inline-block; width:auto; text-decoration:none; font-size: 13px; padding: 10px 20px;">⬇️ Download File Ini</a>
+        </div>
+    </div>
+
+    <!-- MODAL KEUANGAN -->
     <div id="modalKeuangan" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="tutupModalKeuangan()">&times;</span>
@@ -520,6 +531,7 @@
         </div>
     </div>
 
+    <!-- MODAL TEMPLATE BAST -->
     <div id="modalTemplate" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="tutupModalTemplateBAST()">&times;</span>
@@ -540,6 +552,7 @@
         </div>
     </div>
 
+    <!-- MODAL PENGAJUAN -->
     <div id="modalPengajuan" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="tutupModalPengajuan()">&times;</span>
@@ -558,8 +571,10 @@
         </div>
     </div>
 
+    <!-- MODAL ALASAN -->
     <div id="modalAlasan" class="modal"><div class="modal-content modal-sm"><span class="close-modal" onclick="tutupModalAlasan()">&times;</span><h3 id="titleModalAlasan">Input Keterangan</h3><form id="formAlasan" style="margin-top:15px;"><input type="hidden" id="alasanItemIdx"><input type="hidden" id="alasanTargetStatus"><div class="input-group"><label>Keterangan lengkap:</label><textarea id="inputAlasan" required rows="4"></textarea></div><button type="submit" class="btn-primary" style="width: 100%; padding: 10px;">Simpan Status</button></form></div></div>
     
+    <!-- MODAL EDIT PENGAJUAN -->
     <div id="modalEditPengajuan" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="tutupModalEditPengajuan()">&times;</span>
@@ -573,7 +588,7 @@
                 <div class="form-grid-3">
                     <div class="input-group"><label>Qty</label><input type="number" id="epQty" required></div>
                     <div class="input-group"><label>Satuan</label><input type="text" id="epSatuan" required></div>
-                    <div class="input-group"><label>Total Budget (Rp)</label><input type="number" id="epBudget" required></div>
+                    <div class="input-group"><label>Total Estimasi Budget (Rp)</label><input type="number" id="epBudget" required></div>
                 </div>
                 <div class="form-grid-2">
                     <div class="input-group"><label>Tgl Rencana Penggunaan</label><input type="date" id="epGuna"></div>
@@ -588,6 +603,7 @@
         </div>
     </div>
 
+    <!-- MODAL USER -->
     <div id="modalUser" class="modal">
         <div class="modal-content modal-sm">
             <span class="close-modal" onclick="tutupModalUser()">&times;</span>
@@ -617,6 +633,7 @@
         </div>
     </div>
     
+    <!-- MODAL EDIT USER -->
     <div id="modalEditUser" class="modal">
         <div class="modal-content modal-sm">
             <span class="close-modal" onclick="tutupModalEditUser()">&times;</span>
@@ -646,7 +663,28 @@
         </div>
     </div>
     
-    <div id="modalHarga" class="modal"><div class="modal-content modal-sm"><span class="close-modal" onclick="tutupModalHarga()">&times;</span><h3>Input Harga Aktual</h3><form id="formHargaAktual" style="margin-top:15px;"><input type="hidden" id="indexItemAktif"><div class="input-group"><label>Harga Aktual Total (Rp)</label><input type="number" id="hargaTotal" required oninput="hitungHargaSatuan()"></div><div class="input-group"><label>Harga Aktual Satuan</label><input type="number" id="hargaSatuan" readonly></div><button type="submit" class="btn-success" style="width: 100%; padding: 10px;">Simpan & Tandai Siap</button></form></div></div>
+    <!-- MODAL INPUT HARGA AKTUAL (Fleksibel Non-Otomatis) -->
+    <div id="modalHarga" class="modal">
+        <div class="modal-content modal-sm">
+            <span class="close-modal" onclick="tutupModalHarga()">&times;</span>
+            <h3>Input Harga Aktual Asli</h3>
+            <form id="formHargaAktual" style="margin-top:15px;">
+                <input type="hidden" id="indexItemAktif">
+                <div class="form-grid-2" style="margin-bottom:0;">
+                    <div class="input-group">
+                        <label>Harga Aktual Satuan</label>
+                        <input type="number" id="hargaSatuan" required placeholder="Contoh: 50000">
+                    </div>
+                    <div class="input-group">
+                        <label>Harga Aktual Total</label>
+                        <input type="number" id="hargaTotal" required placeholder="Contoh: 150000">
+                    </div>
+                </div>
+                <small style="display:block; color:#7f8c8d; font-size:11px; margin-bottom:15px; text-align:center;">Isi kedua harga secara fleksibel. Tidak dikalkulasi otomatis.</small>
+                <button type="submit" class="btn-success" style="width: 100%; padding: 10px;">Simpan & Tandai Siap</button>
+            </form>
+        </div>
+    </div>
     
     <!-- MODAL BAST -->
     <div id="modalBAST" class="modal">
@@ -723,12 +761,12 @@
         </div>
     </div>
     
-    <!-- MODAL EDIT ITEM UNIVERSAL -->
+    <!-- MODAL EDIT ITEM UNIVERSAL (Pemisahan Budget vs Aktual) -->
     <div id="modalEditItem" class="modal">
         <div class="modal-content modal-sm">
             <span class="close-modal" onclick="tutupModalEditItem()">&times;</span>
-            <h3>Edit Histori Item</h3>
-            <form id="formEditItem" style="margin-top:15px;">
+            <h3 style="margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px;">Edit Histori Item</h3>
+            <form id="formEditItem">
                 <input type="hidden" id="editItemIdx">
                 <div class="input-group"><label>Bidang</label><input type="text" id="eBidang" required></div>
                 <div class="input-group"><label>Nama Barang</label><input type="text" id="eNama" required></div>
@@ -736,7 +774,14 @@
                     <div class="input-group"><label>Qty</label><input type="number" id="eQty" required></div>
                     <div class="input-group"><label>Satuan</label><input type="text" id="eSatuan" required></div>
                 </div>
-                <div class="input-group"><label>Total Biaya (Rp)</label><input type="number" id="eBiaya" required></div>
+                
+                <div class="input-group"><label>Total Estimasi Budget (Rp)</label><input type="number" id="eBiaya" required></div>
+                
+                <div class="form-grid-2" style="background:#f1f2f6; padding:10px; border-radius:5px; margin-bottom:15px;">
+                    <div class="input-group" style="margin-bottom:0;"><label style="font-size:11px; color:#2c3e50;">Harga Aktual Satuan (Rp)</label><input type="number" id="eHargaSatuan" placeholder="Asli"></div>
+                    <div class="input-group" style="margin-bottom:0;"><label style="font-size:11px; color:#2c3e50;">Harga Aktual Total (Rp)</label><input type="number" id="eHargaTotal" placeholder="Asli"></div>
+                </div>
+
                 <div class="input-group">
                     <label>Status Item</label>
                     <select id="eStatus">
@@ -891,13 +936,31 @@
         function bukaModalEditPengajuan(idx) { isModalOpen = true; let item = dataItems[idx]; document.getElementById('epIdx').value = idx; document.getElementById('epNama').value = item.nama; document.getElementById('epSpek').value = item.spek || ''; document.getElementById('epQty').value = item.qty; document.getElementById('epSatuan').value = item.satuan; document.getElementById('epBudget').value = item.budgetTotal; document.getElementById('epGuna').value = item.tglGuna || ''; document.getElementById('epCatatan').value = item.catatan || ''; document.getElementById('epLampiran').value = (item.lampiran && item.lampiran.type === 'link') ? item.lampiran.data : ''; document.getElementById('modalEditPengajuan').style.display = 'flex'; }
         function tutupModalEditPengajuan() { isModalOpen = false; document.getElementById('modalEditPengajuan').style.display = 'none'; }
         document.getElementById('formEditPengajuan').addEventListener('submit', function(e) { e.preventDefault(); let idx = document.getElementById('epIdx').value; dataItems[idx].nama = document.getElementById('epNama').value; dataItems[idx].spek = document.getElementById('epSpek').value; dataItems[idx].qty = parseInt(document.getElementById('epQty').value); dataItems[idx].satuan = document.getElementById('epSatuan').value; dataItems[idx].budgetTotal = parseInt(document.getElementById('epBudget').value); dataItems[idx].tglGuna = document.getElementById('epGuna').value; dataItems[idx].catatan = document.getElementById('epCatatan').value; let lk = document.getElementById('epLampiran').value.trim(); if(lk !== '') dataItems[idx].lampiran = { type: 'link', data: lk }; if(dataItems[idx].status === 'Ditolak') { dataItems[idx].status = 'Pengajuan'; dataItems[idx].alasan = ''; } saveData(); tutupModalEditPengajuan(); renderTables(); });
-        function bukaModalHarga(idx) { isModalOpen = true; document.getElementById('indexItemAktif').value = idx; document.getElementById('hargaTotal').value = dataItems[idx].budgetTotal; hitungHargaSatuan(); document.getElementById('modalHarga').style.display = "flex"; }
+        
+        // UPDATE: BUKA MODAL HARGA (NON-OTOMATIS)
+        function bukaModalHarga(idx) { 
+            isModalOpen = true; 
+            document.getElementById('indexItemAktif').value = idx; 
+            let item = dataItems[idx];
+            document.getElementById('hargaTotal').value = item.hAktualTotal || item.budgetTotal || ''; 
+            let defaultSatuan = item.hAktualSatuan || Math.floor((item.hAktualTotal || item.budgetTotal || 0) / item.qty) || '';
+            document.getElementById('hargaSatuan').value = defaultSatuan; 
+            document.getElementById('modalHarga').style.display = "flex"; 
+        }
         function tutupModalHarga() { isModalOpen = false; document.getElementById('modalHarga').style.display = "none"; }
-        function hitungHargaSatuan() { let idx = document.getElementById('indexItemAktif').value; let qty = dataItems[idx].qty; document.getElementById('hargaSatuan').value = Math.floor((parseInt(document.getElementById('hargaTotal').value) || 0) / qty); }
-        document.getElementById('formHargaAktual').addEventListener('submit', (e) => { e.preventDefault(); let idx = document.getElementById('indexItemAktif').value; dataItems[idx].hAktualSatuan = parseInt(document.getElementById('hargaSatuan').value); dataItems[idx].hAktualTotal = parseInt(document.getElementById('hargaTotal').value); dataItems[idx].status = 'Siap'; saveData(); tutupModalHarga(); renderTables(); });
+        document.getElementById('formHargaAktual').addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            let idx = document.getElementById('indexItemAktif').value; 
+            dataItems[idx].hAktualSatuan = parseInt(document.getElementById('hargaSatuan').value) || 0; 
+            dataItems[idx].hAktualTotal = parseInt(document.getElementById('hargaTotal').value) || 0; 
+            dataItems[idx].status = 'Siap'; 
+            saveData(); tutupModalHarga(); renderTables(); 
+        });
+
         function ubahStatus(idx, st) { dataItems[idx].status = st; if(st === 'Disetujui') dataItems[idx].alasan = ''; saveData(); renderTables(); }
         function batalkanSiap(idx) { if(confirm("Batalkan status 'Siap' pada item ini dan kembalikan ke 'Proses Belanja'?")) { dataItems[idx].status = 'Proses Belanja'; dataItems[idx].hAktualSatuan = 0; dataItems[idx].hAktualTotal = 0; saveData(); renderTables(); } }
         
+        // UPDATE: EDIT ITEM (Pemisahan Budget & Aktual)
         function bukaModalEditItem(idx) { 
             isModalOpen = true; 
             const item = dataItems[idx]; 
@@ -906,7 +969,9 @@
             document.getElementById('eNama').value = item.nama; 
             document.getElementById('eQty').value = item.qty; 
             document.getElementById('eSatuan').value = item.satuan; 
-            document.getElementById('eBiaya').value = (item.status === 'Selesai' || item.status === 'Siap') ? item.hAktualTotal : item.budgetTotal; 
+            document.getElementById('eBiaya').value = item.budgetTotal || 0; 
+            document.getElementById('eHargaSatuan').value = item.hAktualSatuan || ''; 
+            document.getElementById('eHargaTotal').value = item.hAktualTotal || ''; 
             document.getElementById('eStatus').value = item.status; 
             document.getElementById('modalEditItem').style.display = "flex"; 
         }
@@ -919,18 +984,10 @@
             dataItems[idx].nama = document.getElementById('eNama').value; 
             dataItems[idx].qty = parseInt(document.getElementById('eQty').value); 
             dataItems[idx].satuan = document.getElementById('eSatuan').value; 
+            dataItems[idx].budgetTotal = parseInt(document.getElementById('eBiaya').value) || 0; 
+            dataItems[idx].hAktualSatuan = parseInt(document.getElementById('eHargaSatuan').value) || 0; 
+            dataItems[idx].hAktualTotal = parseInt(document.getElementById('eHargaTotal').value) || 0; 
             dataItems[idx].status = document.getElementById('eStatus').value; 
-            
-            let biaya = parseInt(document.getElementById('eBiaya').value); 
-            
-            if(dataItems[idx].status === 'Selesai' || dataItems[idx].status === 'Siap') { 
-                dataItems[idx].hAktualTotal = biaya; 
-                dataItems[idx].hAktualSatuan = Math.floor(biaya / dataItems[idx].qty); 
-            } else {
-                dataItems[idx].budgetTotal = biaya; 
-                dataItems[idx].hAktualTotal = 0;
-                dataItems[idx].hAktualSatuan = 0;
-            } 
             
             saveData(); 
             tutupModalEditItem(); 
@@ -940,70 +997,18 @@
         // ==========================================
         // MENGELOLA BERITA ACARA SERAH TERIMA (BAST) 
         // ==========================================
-        
-        function populateDatalistPengguna() {
-            let dl = document.getElementById('listPengguna'); if(!dl) return; dl.innerHTML = '';
-            sysUsers.forEach(u => { dl.innerHTML += `<option value="${u.nama}"></option>`; });
-        }
+        function populateDatalistPengguna() { let dl = document.getElementById('listPengguna'); if(!dl) return; dl.innerHTML = ''; sysUsers.forEach(u => { dl.innerHTML += `<option value="${u.nama}"></option>`; }); }
+        function autoFillPihak(pihak) { let namaVal = document.getElementById(`p${pihak}Nama`).value; let found = sysUsers.find(u => u.nama.toLowerCase() === namaVal.toLowerCase()); let dlJab = document.getElementById(`listJabatan${pihak}`); if(dlJab) dlJab.innerHTML = ''; if(found) { document.getElementById(`p${pihak}Nipy`).value = found.nipy || ''; let arrJab = (found.jabatan || '').split(',').map(j => j.trim()).filter(j => j); if(arrJab.length > 0) { arrJab.forEach(j => { dlJab.innerHTML += `<option value="${j}"></option>`; }); document.getElementById(`p${pihak}Jabatan`).value = arrJab[0]; } else { document.getElementById(`p${pihak}Jabatan`).value = found.jabatan || ''; } } }
+        function populateBASTBidang() { let dl = document.getElementById('listBidang'); dl.innerHTML = ''; let arrBidang = []; sysUsers.forEach(u => { let parts = (u.bidang || '').split(',').map(b => b.trim()).filter(b => b); arrBidang = arrBidang.concat(parts); }); let uniqueBidang = [...new Set(arrBidang)]; uniqueBidang.forEach(b => { dl.innerHTML += `<option value="${b}"></option>`; }); }
+        function updateDefaultTembusan() { let bidang = document.getElementById('bastBidang').value; let inputs = document.querySelectorAll('.t-input-val'); if(inputs.length > 0) { inputs[0].value = `Arsip Bidang ${bidang}`; } }
+        function tambahTembusan(val = '') { let container = document.getElementById('containerTembusan'); let div = document.createElement('div'); div.style.display = 'flex'; div.style.gap = '10px'; div.style.marginBottom = '10px'; div.innerHTML = `<input type="text" class="t-input-val" style="flex:1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" value="${val}" required><button type="button" class="btn-danger" onclick="this.parentElement.remove()" style="padding: 0 12px; font-weight:bold;">✖</button>`; container.appendChild(div); }
+        function generateNoSurat(dateObj) { const dd = String(dateObj.getDate()).padStart(2, '0'); const romans = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"]; const roman = romans[dateObj.getMonth()]; const yyyy = dateObj.getFullYear(); const dateStr = dateObj.toISOString().split('T')[0]; let countToday = 1; dataBAST.forEach(b => { if (b.tanggal === dateStr) countToday++; }); return `${dd}.${countToday}/TU/${roman}/${yyyy}`; }
+        function tambahBarangManualBAST(nama = '', qty = '') { let container = document.getElementById('containerBarangManualBAST'); let div = document.createElement('div'); div.style.display = 'flex'; div.style.gap = '10px'; div.style.marginBottom = '10px'; div.innerHTML = `<input type="text" class="bm-nama" placeholder="Nama Barang (Cth: Laptop ASUS)" style="flex:2; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" value="${nama}" required><input type="text" class="bm-qty" placeholder="Jumlah (Cth: 2 Unit)" style="flex:1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" value="${qty}" required><button type="button" class="btn-danger" onclick="hapusBarangManualBAST(this)" style="padding: 0 12px; font-weight:bold;">✖</button>`; container.appendChild(div); }
+        function hapusBarangManualBAST(btn) { if(document.getElementById('containerBarangManualBAST').children.length > 1) { btn.parentElement.remove(); } else { alert("Minimal harus ada 1 barang manual!"); } }
 
-        function autoFillPihak(pihak) {
-            let namaVal = document.getElementById(`p${pihak}Nama`).value;
-            let found = sysUsers.find(u => u.nama.toLowerCase() === namaVal.toLowerCase());
-            let dlJab = document.getElementById(`listJabatan${pihak}`);
-            if(dlJab) dlJab.innerHTML = ''; 
-            if(found) {
-                document.getElementById(`p${pihak}Nipy`).value = found.nipy || '';
-                let arrJab = (found.jabatan || '').split(',').map(j => j.trim()).filter(j => j);
-                if(arrJab.length > 0) { arrJab.forEach(j => { dlJab.innerHTML += `<option value="${j}"></option>`; }); document.getElementById(`p${pihak}Jabatan`).value = arrJab[0]; } 
-                else { document.getElementById(`p${pihak}Jabatan`).value = found.jabatan || ''; }
-            }
-        }
-
-        function populateBASTBidang() {
-            let dl = document.getElementById('listBidang'); dl.innerHTML = ''; let arrBidang = [];
-            sysUsers.forEach(u => { let parts = (u.bidang || '').split(',').map(b => b.trim()).filter(b => b); arrBidang = arrBidang.concat(parts); });
-            let uniqueBidang = [...new Set(arrBidang)];
-            uniqueBidang.forEach(b => { dl.innerHTML += `<option value="${b}"></option>`; });
-        }
-        function updateDefaultTembusan() {
-            let bidang = document.getElementById('bastBidang').value; let inputs = document.querySelectorAll('.t-input-val');
-            if(inputs.length > 0) { inputs[0].value = `Arsip Bidang ${bidang}`; }
-        }
-        function tambahTembusan(val = '') {
-            let container = document.getElementById('containerTembusan'); let div = document.createElement('div');
-            div.style.display = 'flex'; div.style.gap = '10px'; div.style.marginBottom = '10px';
-            div.innerHTML = `<input type="text" class="t-input-val" style="flex:1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" value="${val}" required><button type="button" class="btn-danger" onclick="this.parentElement.remove()" style="padding: 0 12px; font-weight:bold;">✖</button>`;
-            container.appendChild(div);
-        }
-        function generateNoSurat(dateObj) { 
-            const dd = String(dateObj.getDate()).padStart(2, '0'); const romans = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"]; const roman = romans[dateObj.getMonth()]; const yyyy = dateObj.getFullYear(); 
-            const dateStr = dateObj.toISOString().split('T')[0]; let countToday = 1; dataBAST.forEach(b => { if (b.tanggal === dateStr) countToday++; }); 
-            return `${dd}.${countToday}/TU/${roman}/${yyyy}`; 
-        }
-        
-        function tambahBarangManualBAST(nama = '', qty = '') {
-            let container = document.getElementById('containerBarangManualBAST');
-            let div = document.createElement('div');
-            div.style.display = 'flex'; div.style.gap = '10px'; div.style.marginBottom = '10px';
-            div.innerHTML = `
-                <input type="text" class="bm-nama" placeholder="Nama Barang (Cth: Laptop ASUS)" style="flex:2; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" value="${nama}" required>
-                <input type="text" class="bm-qty" placeholder="Jumlah (Cth: 2 Unit)" style="flex:1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" value="${qty}" required>
-                <button type="button" class="btn-danger" onclick="hapusBarangManualBAST(this)" style="padding: 0 12px; font-weight:bold;">✖</button>
-            `;
-            container.appendChild(div);
-        }
-        
-        function hapusBarangManualBAST(btn) {
-            if(document.getElementById('containerBarangManualBAST').children.length > 1) { btn.parentElement.remove(); } else { alert("Minimal harus ada 1 barang manual!"); }
-        }
-
-        // UPDATE: LOGIKA TOMBOL BAST GABUNGAN
         function siapkanBASTGabungan() {
             selectedItemsForBAST = [];
-            document.querySelectorAll('.chk-bast:checked').forEach(chk => { 
-                if(chk.closest('tr').style.display !== 'none') { selectedItemsForBAST.push(chk.value); } 
-            });
-
+            document.querySelectorAll('.chk-bast:checked').forEach(chk => { if(chk.closest('tr').style.display !== 'none') { selectedItemsForBAST.push(chk.value); } });
             isModalOpen = true; const today = new Date(); 
             populateBASTBidang(); populateDatalistPengguna();
             document.getElementById('bastTanggal').valueAsDate = today; 
@@ -1011,39 +1016,22 @@
             document.getElementById('p1Nama').value = activeUser.nama; autoFillPihak(1);
 
             if (selectedItemsForBAST.length > 0) {
-                // EKSEKUSI BAST SISTEM (Berdasarkan item tercentang)
                 document.getElementById('bastMode').value = 'create_system'; 
                 document.getElementById('bastModalTitle').textContent = 'Buat BAST (Otomatis dari Sistem)'; 
                 document.getElementById('sectionBastManual').style.display = 'none';
 
                 let itemPertama = dataItems.find(x => x.idItem === selectedItemsForBAST[0]);
                 let defaultBidang = '';
-                if(itemPertama) {
-                    document.getElementById('p2Nama').value = itemPertama.pemohon; autoFillPihak(2);
-                    defaultBidang = itemPertama.bidang; document.getElementById('bastBidang').value = defaultBidang;
-                }
-
-                document.getElementById('containerTembusan').innerHTML = '';
-                tambahTembusan(`Arsip Bidang ${document.getElementById('bastBidang').value || defaultBidang}`);
-                document.getElementById('bastCatatan').value = ''; 
-                
+                if(itemPertama) { document.getElementById('p2Nama').value = itemPertama.pemohon; autoFillPihak(2); defaultBidang = itemPertama.bidang; document.getElementById('bastBidang').value = defaultBidang; }
+                document.getElementById('containerTembusan').innerHTML = ''; tambahTembusan(`Arsip Bidang ${document.getElementById('bastBidang').value || defaultBidang}`); document.getElementById('bastCatatan').value = ''; 
             } else {
-                // EKSEKUSI BAST MANUAL (Jika tidak ada yang dicentang)
                 document.getElementById('bastMode').value = 'create_manual'; 
                 document.getElementById('bastModalTitle').textContent = 'Buat BAST Manual (Luar Sistem)'; 
                 document.getElementById('bastBidang').value = ''; 
-                
                 document.getElementById('p2Nama').value = ''; document.getElementById('p2Nipy').value = ''; document.getElementById('p2Jabatan').value = '';
-                
-                document.getElementById('containerTembusan').innerHTML = '';
-                tambahTembusan(`Arsip Bidang`);
-                document.getElementById('bastCatatan').value = ''; 
-
-                document.getElementById('sectionBastManual').style.display = 'block';
-                document.getElementById('containerBarangManualBAST').innerHTML = '';
-                tambahBarangManualBAST();
+                document.getElementById('containerTembusan').innerHTML = ''; tambahTembusan(`Arsip Bidang`); document.getElementById('bastCatatan').value = ''; 
+                document.getElementById('sectionBastManual').style.display = 'block'; document.getElementById('containerBarangManualBAST').innerHTML = ''; tambahBarangManualBAST();
             }
-
             document.getElementById('modalBAST').style.display = 'flex'; 
         }
 
@@ -1051,46 +1039,21 @@
         
         function editBAST(idBast) { 
             const bast = dataBAST.find(b => b.id === idBast); if(!bast) return; 
-            isModalOpen = true; 
-            
-            populateBASTBidang(); populateDatalistPengguna(); 
-
-            document.getElementById('bastEditId').value = bast.id; 
-            document.getElementById('bastBidang').value = bast.judul; 
-            document.getElementById('bastNoSurat').value = bast.noSurat; document.getElementById('bastTanggal').value = bast.tanggal; 
-            
+            isModalOpen = true; populateBASTBidang(); populateDatalistPengguna(); 
+            document.getElementById('bastEditId').value = bast.id; document.getElementById('bastBidang').value = bast.judul; document.getElementById('bastNoSurat').value = bast.noSurat; document.getElementById('bastTanggal').value = bast.tanggal; 
             document.getElementById('p1Nama').value = bast.p1 ? (bast.p1.nama || bast.p1) : ''; document.getElementById('p1Nipy').value = bast.p1 ? (bast.p1.nipy || '') : ''; document.getElementById('p1Jabatan').value = bast.p1 ? (bast.p1.jab || '') : ''; 
             document.getElementById('p2Nama').value = bast.p2 ? (bast.p2.nama || bast.p2) : ''; document.getElementById('p2Nipy').value = bast.p2 ? (bast.p2.nipy || '') : ''; document.getElementById('p2Jabatan').value = bast.p2 ? (bast.p2.jab || '') : ''; 
             document.getElementById('bastCatatan').value = bast.catatanBAST || '';
-
-            document.getElementById('containerTembusan').innerHTML = '';
-            if(bast.tembusan && bast.tembusan.length > 0) { bast.tembusan.forEach(t => tambahTembusan(t)); } else { tambahTembusan(`Arsip Bidang ${bast.judul}`); }
-            
-            if(bast.itemsManual && bast.itemsManual.length > 0) {
-                document.getElementById('bastMode').value = 'edit_manual';
-                document.getElementById('sectionBastManual').style.display = 'block';
-                document.getElementById('containerBarangManualBAST').innerHTML = '';
-                bast.itemsManual.forEach(i => tambahBarangManualBAST(i.nama, i.qty));
-            } else {
-                document.getElementById('bastMode').value = 'edit_system';
-                document.getElementById('sectionBastManual').style.display = 'none';
-            }
-
+            document.getElementById('containerTembusan').innerHTML = ''; if(bast.tembusan && bast.tembusan.length > 0) { bast.tembusan.forEach(t => tambahTembusan(t)); } else { tambahTembusan(`Arsip Bidang ${bast.judul}`); }
+            if(bast.itemsManual && bast.itemsManual.length > 0) { document.getElementById('bastMode').value = 'edit_manual'; document.getElementById('sectionBastManual').style.display = 'block'; document.getElementById('containerBarangManualBAST').innerHTML = ''; bast.itemsManual.forEach(i => tambahBarangManualBAST(i.nama, i.qty)); } else { document.getElementById('bastMode').value = 'edit_system'; document.getElementById('sectionBastManual').style.display = 'none'; }
             document.getElementById('modalBAST').style.display = 'flex'; 
         }
 
         function hapusBAST(idBast) { 
             if(confirm('Yakin ingin menghapus dokumen BAST ini?\n\nJika ini adalah BAST dari sistem, status barang di dalamnya akan otomatis dikembalikan menjadi "Siap" agar Anda bisa membuat BAST ulang.')) { 
                 let bastTarget = dataBAST.find(x => x.id === idBast);
-                if (bastTarget && (!bastTarget.itemsManual || bastTarget.itemsManual.length === 0)) {
-                    let arrItems = bastTarget.items || bastTarget.itemsIdx || [];
-                    arrItems.forEach(val => {
-                        let item = typeof val === 'string' ? dataItems.find(x => x.idItem === val) : dataItems[val];
-                        if (item) { item.status = 'Siap'; item.tglSelesai = null; }
-                    });
-                }
-                dataBAST = dataBAST.filter(x => x.id !== idBast); 
-                saveData(); renderTables(); 
+                if (bastTarget && (!bastTarget.itemsManual || bastTarget.itemsManual.length === 0)) { let arrItems = bastTarget.items || bastTarget.itemsIdx || []; arrItems.forEach(val => { let item = typeof val === 'string' ? dataItems.find(x => x.idItem === val) : dataItems[val]; if (item) { item.status = 'Siap'; item.tglSelesai = null; } }); }
+                dataBAST = dataBAST.filter(x => x.id !== idBast); saveData(); renderTables(); 
             } 
         }
         
@@ -1100,43 +1063,15 @@
             let catBast = document.getElementById('bastCatatan').value;
 
             let arrItemsManual = [];
-            if (mode === 'create_manual' || mode === 'edit_manual') {
-                document.querySelectorAll('#containerBarangManualBAST > div').forEach(row => {
-                    let nama = row.querySelector('.bm-nama').value.trim();
-                    let qty = row.querySelector('.bm-qty').value.trim();
-                    if(nama !== '' && qty !== '') arrItemsManual.push({ nama, qty });
-                });
-                if(arrItemsManual.length === 0) return alert("Daftar barang manual tidak boleh kosong!");
-            }
+            if (mode === 'create_manual' || mode === 'edit_manual') { document.querySelectorAll('#containerBarangManualBAST > div').forEach(row => { let nama = row.querySelector('.bm-nama').value.trim(); let qty = row.querySelector('.bm-qty').value.trim(); if(nama !== '' && qty !== '') arrItemsManual.push({ nama, qty }); }); if(arrItemsManual.length === 0) return alert("Daftar barang manual tidak boleh kosong!"); }
 
             if (mode.startsWith('create')) { 
-                let newBast = { 
-                    id: 'BAST-' + String(idBastCounter).padStart(3, '0'), judul: document.getElementById('bastBidang').value, 
-                    noSurat: document.getElementById('bastNoSurat').value, tanggal: tglBast, 
-                    p1: { nama: document.getElementById('p1Nama').value, nipy: document.getElementById('p1Nipy').value, jab: document.getElementById('p1Jabatan').value }, 
-                    p2: { nama: document.getElementById('p2Nama').value, nipy: document.getElementById('p2Nipy').value, jab: document.getElementById('p2Jabatan').value }, 
-                    tembusan: arrTembusan, catatanBAST: catBast
-                };
-                
-                if (mode === 'create_manual') {
-                    newBast.itemsManual = arrItemsManual;
-                } else {
-                    newBast.items = selectedItemsForBAST;
-                    selectedItemsForBAST.forEach(idItem => { let item = dataItems.find(x => x.idItem === idItem); if(item) { item.status = 'Selesai'; item.tglSelesai = tglBast; } }); 
-                }
-                
-                dataBAST.push(newBast);
-                idBastCounter++; 
+                let newBast = { id: 'BAST-' + String(idBastCounter).padStart(3, '0'), judul: document.getElementById('bastBidang').value, noSurat: document.getElementById('bastNoSurat').value, tanggal: tglBast, p1: { nama: document.getElementById('p1Nama').value, nipy: document.getElementById('p1Nipy').value, jab: document.getElementById('p1Jabatan').value }, p2: { nama: document.getElementById('p2Nama').value, nipy: document.getElementById('p2Nipy').value, jab: document.getElementById('p2Jabatan').value }, tembusan: arrTembusan, catatanBAST: catBast };
+                if (mode === 'create_manual') { newBast.itemsManual = arrItemsManual; } else { newBast.items = selectedItemsForBAST; selectedItemsForBAST.forEach(idItem => { let item = dataItems.find(x => x.idItem === idItem); if(item) { item.status = 'Selesai'; item.tglSelesai = tglBast; } }); }
+                dataBAST.push(newBast); idBastCounter++; 
             } else { 
                 const bIndex = dataBAST.findIndex(b => b.id === document.getElementById('bastEditId').value); 
-                if(bIndex !== -1) { 
-                    dataBAST[bIndex].judul = document.getElementById('bastBidang').value; dataBAST[bIndex].noSurat = document.getElementById('bastNoSurat').value; dataBAST[bIndex].tanggal = tglBast; 
-                    dataBAST[bIndex].p1 = { nama: document.getElementById('p1Nama').value, nipy: document.getElementById('p1Nipy').value, jab: document.getElementById('p1Jabatan').value }; 
-                    dataBAST[bIndex].p2 = { nama: document.getElementById('p2Nama').value, nipy: document.getElementById('p2Nipy').value, jab: document.getElementById('p2Jabatan').value }; 
-                    dataBAST[bIndex].tembusan = arrTembusan; dataBAST[bIndex].catatanBAST = catBast; 
-
-                    if (mode === 'edit_manual') { dataBAST[bIndex].itemsManual = arrItemsManual; }
-                } 
+                if(bIndex !== -1) { dataBAST[bIndex].judul = document.getElementById('bastBidang').value; dataBAST[bIndex].noSurat = document.getElementById('bastNoSurat').value; dataBAST[bIndex].tanggal = tglBast; dataBAST[bIndex].p1 = { nama: document.getElementById('p1Nama').value, nipy: document.getElementById('p1Nipy').value, jab: document.getElementById('p1Jabatan').value }; dataBAST[bIndex].p2 = { nama: document.getElementById('p2Nama').value, nipy: document.getElementById('p2Nipy').value, jab: document.getElementById('p2Jabatan').value }; dataBAST[bIndex].tembusan = arrTembusan; dataBAST[bIndex].catatanBAST = catBast; if (mode === 'edit_manual') { dataBAST[bIndex].itemsManual = arrItemsManual; } } 
             } 
             saveData(); tutupModalBAST(); renderTables(); 
         });
@@ -1152,34 +1087,14 @@
         function generateBASTHTML(idBast) { 
             const bast = dataBAST.find(b => b.id === idBast); if (!bast) return ''; 
             let itemsHtml = `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;"><thead><tr><th style="border: 1px solid #000; padding: 6px; text-align: center; width: 5%;">No</th><th style="border: 1px solid #000; padding: 6px; text-align: left; width: 65%;">Nama Barang</th><th style="border: 1px solid #000; padding: 6px; text-align: center; width: 30%;">Jumlah</th></tr></thead><tbody>`; 
-            
-            if(bast.itemsManual && bast.itemsManual.length > 0) {
-                bast.itemsManual.forEach((item, i) => {
-                    itemsHtml += `<tr><td style="border: 1px solid #000; padding: 6px; text-align: center;">${i+1}</td><td style="border: 1px solid #000; padding: 6px;">${item.nama}</td><td style="border: 1px solid #000; padding: 6px; text-align: center;">${item.qty}</td></tr>`; 
-                });
-            } else {
-                let arrItems = bast.items || bast.itemsIdx || [];
-                arrItems.forEach((val, i) => { 
-                    let item = typeof val === 'string' ? dataItems.find(x => x.idItem === val) : dataItems[val];
-                    if(!item) item = { nama: '(Item dihapus)', qty: 0, satuan: '' };
-                    itemsHtml += `<tr><td style="border: 1px solid #000; padding: 6px; text-align: center;">${i+1}</td><td style="border: 1px solid #000; padding: 6px;">${item.nama}</td><td style="border: 1px solid #000; padding: 6px; text-align: center;">${item.qty} ${item.satuan}</td></tr>`; 
-                }); 
-            }
+            if(bast.itemsManual && bast.itemsManual.length > 0) { bast.itemsManual.forEach((item, i) => { itemsHtml += `<tr><td style="border: 1px solid #000; padding: 6px; text-align: center;">${i+1}</td><td style="border: 1px solid #000; padding: 6px;">${item.nama}</td><td style="border: 1px solid #000; padding: 6px; text-align: center;">${item.qty}</td></tr>`; }); } else { let arrItems = bast.items || bast.itemsIdx || []; arrItems.forEach((val, i) => { let item = typeof val === 'string' ? dataItems.find(x => x.idItem === val) : dataItems[val]; if(!item) item = { nama: '(Item dihapus)', qty: 0, satuan: '' }; itemsHtml += `<tr><td style="border: 1px solid #000; padding: 6px; text-align: center;">${i+1}</td><td style="border: 1px solid #000; padding: 6px;">${item.nama}</td><td style="border: 1px solid #000; padding: 6px; text-align: center;">${item.qty} ${item.satuan}</td></tr>`; }); }
             itemsHtml += `</tbody></table>`; 
-
             const tgl = new Date(bast.tanggal); const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]; const tglStr = `${tgl.getDate()} ${namaBulan[tgl.getMonth()]} ${tgl.getFullYear()}`; 
             let tembusanHtml = ''; if(bast.tembusan && bast.tembusan.length > 0) { bast.tembusan.forEach((t, i) => { tembusanHtml += `${i+1}. ${t}<br>`; }); } else { tembusanHtml = '-'; }
             let finalHtml = getTemplate(); finalHtml = finalHtml.replace(/\[NO_SURAT\]/g, bast.noSurat); finalHtml = finalHtml.replace(/\[JUDUL\]/g, bast.judul); finalHtml = finalHtml.replace(/\[TANGGAL\]/g, tglStr); 
-            let p1n = bast.p1 ? (bast.p1.nama || bast.p1) : '-'; let p1j = bast.p1 ? (bast.p1.jab || '-') : '-'; let p1Nipy = bast.p1 ? (bast.p1.nipy || '-') : '-';
-            let p2n = bast.p2 ? (bast.p2.nama || bast.p2) : '-'; let p2j = bast.p2 ? (bast.p2.jab || '-') : '-'; let p2Nipy = bast.p2 ? (bast.p2.nipy || '-') : '-';
-
-            finalHtml = finalHtml.replace(/\[P1_NAMA\]/g, p1n); finalHtml = finalHtml.replace(/\[P1_JABATAN\]/g, p1j); finalHtml = finalHtml.replace(/\[P1_NIPY\]/g, p1Nipy);
-            finalHtml = finalHtml.replace(/\[P2_NAMA\]/g, p2n); finalHtml = finalHtml.replace(/\[P2_JABATAN\]/g, p2j); finalHtml = finalHtml.replace(/\[P2_NIPY\]/g, p2Nipy);
-            finalHtml = finalHtml.replace(/\[TABEL_BARANG\]/g, itemsHtml); finalHtml = finalHtml.replace(/\[TEMBUSAN\]/g, tembusanHtml); 
-            
-            let htmlCatatan = bast.catatanBAST ? `<p style="text-align: justify; margin-bottom: 10px;"><b>Catatan:</b> ${bast.catatanBAST}</p>` : '';
-            finalHtml = finalHtml.replace(/\[CATATAN\]/g, htmlCatatan);
-
+            let p1n = bast.p1 ? (bast.p1.nama || bast.p1) : '-'; let p1j = bast.p1 ? (bast.p1.jab || '-') : '-'; let p1Nipy = bast.p1 ? (bast.p1.nipy || '-') : '-'; let p2n = bast.p2 ? (bast.p2.nama || bast.p2) : '-'; let p2j = bast.p2 ? (bast.p2.jab || '-') : '-'; let p2Nipy = bast.p2 ? (bast.p2.nipy || '-') : '-';
+            finalHtml = finalHtml.replace(/\[P1_NAMA\]/g, p1n); finalHtml = finalHtml.replace(/\[P1_JABATAN\]/g, p1j); finalHtml = finalHtml.replace(/\[P1_NIPY\]/g, p1Nipy); finalHtml = finalHtml.replace(/\[P2_NAMA\]/g, p2n); finalHtml = finalHtml.replace(/\[P2_JABATAN\]/g, p2j); finalHtml = finalHtml.replace(/\[P2_NIPY\]/g, p2Nipy); finalHtml = finalHtml.replace(/\[TABEL_BARANG\]/g, itemsHtml); finalHtml = finalHtml.replace(/\[TEMBUSAN\]/g, tembusanHtml); 
+            let htmlCatatan = bast.catatanBAST ? `<p style="text-align: justify; margin-bottom: 10px;"><b>Catatan:</b> ${bast.catatanBAST}</p>` : ''; finalHtml = finalHtml.replace(/\[CATATAN\]/g, htmlCatatan);
             return `<div style="font-family: 'Times New Roman', Times, serif; color: #000; line-height: 1.5; font-size: 14px; background: #fff; padding: 20px;">${finalHtml}</div>`; 
         }
 
@@ -1191,24 +1106,13 @@
         // ==========================================
         // FITUR FILTER & RENDER TABLE 
         // ==========================================
-        
         function updateFilterDropdowns() { 
             const selIds = ['filterBidang', 'filterPemohon', 'dpFilterBidang', 'dpFilterPemohon', 'stFilterBidang', 'stFilterPemohon', 'pengFilterBidang', 'pengFilterPemohon', 'prosFilterBidang', 'prosFilterPemohon'];
-            
             let arrBidang = []; dataItems.forEach(i => { let parts = (i.bidang || '').split(',').map(b => b.trim()).filter(b=>b); arrBidang = arrBidang.concat(parts); });
             let uniqueBidang = [...new Set(arrBidang)]; let arrPemohon = [...new Set(dataItems.map(i => i.pemohon))]; 
-            
             let htmlB = '<option value="">Semua Bidang</option>' + uniqueBidang.map(b => `<option value="${b}">${b}</option>`).join(''); 
             let htmlP = '<option value="">Semua Pemohon</option>' + arrPemohon.map(p => `<option value="${p}">${p}</option>`).join(''); 
-            
-            selIds.forEach(id => {
-                let el = document.getElementById(id);
-                if(el) {
-                    let currentVal = el.value;
-                    if(id.includes('Bidang')) { el.innerHTML = htmlB; el.value = uniqueBidang.includes(currentVal) ? currentVal : ""; }
-                    else if(id.includes('Pemohon')) { el.innerHTML = htmlP; el.value = arrPemohon.includes(currentVal) ? currentVal : ""; }
-                }
-            });
+            selIds.forEach(id => { let el = document.getElementById(id); if(el) { let currentVal = el.value; if(id.includes('Bidang')) { el.innerHTML = htmlB; el.value = uniqueBidang.includes(currentVal) ? currentVal : ""; } else if(id.includes('Pemohon')) { el.innerHTML = htmlP; el.value = arrPemohon.includes(currentVal) ? currentVal : ""; } } });
         }
         function resetFilter() { document.getElementById('filterStart').value = ''; document.getElementById('filterEnd').value = ''; document.getElementById('filterBidang').value = ''; document.getElementById('filterPemohon').value = ''; updateDashboard(); }
         function getVisibleDataForGlobalFilter() { let visibleItems = dataItems; if(activeUser && activeUser.role === 'pemohon') { visibleItems = dataItems.filter(i => i.username === activeUser.user); } else { const start = document.getElementById('filterStart').value; const end = document.getElementById('filterEnd').value; const b = document.getElementById('filterBidang').value; const p = document.getElementById('filterPemohon').value; visibleItems = visibleItems.filter(item => { let matchDate = true; if (start && end) matchDate = (item.tgl >= start && item.tgl <= end); return matchDate && (b === '' || item.bidang === b) && (p === '' || item.pemohon === p); }); } return visibleItems; }
@@ -1216,65 +1120,19 @@
         function updateDashboardChart() {
             try {
                 if(!activeUser || typeof Chart === 'undefined') return;
-                const viewType = document.getElementById('chartViewType').value;
-                const visibleItems = getVisibleDataForGlobalFilter();
-                
+                const viewType = document.getElementById('chartViewType').value; const visibleItems = getVisibleDataForGlobalFilter();
                 let groupedData = {};
-
-                visibleItems.forEach(item => {
-                    let key = '';
-                    if(viewType === 'harian') key = item.tgl; 
-                    else if(viewType === 'bulanan') key = item.tgl.substring(0, 7); 
-                    else key = item.tgl.substring(0, 4); 
-                    
+                visibleItems.forEach(item => { let key = ''; if(viewType === 'harian') key = item.tgl; else if(viewType === 'bulanan') key = item.tgl.substring(0, 7); else key = item.tgl.substring(0, 4); 
                     if(!groupedData[key]) { groupedData[key] = { totalItem: 0, totalBiaya: 0, sumHari: 0, countSelesai: 0, countTarget: 0 }; }
-
-                    groupedData[key].totalItem += 1;
-                    if (item.status === 'Siap' || item.status === 'Selesai') groupedData[key].totalBiaya += item.hAktualTotal;
-                    
-                    if (item.status === 'Selesai' && item.tglSelesai) { 
-                        groupedData[key].countSelesai++; 
-                        let diffHari = Math.ceil(Math.abs(new Date(item.tglSelesai) - new Date(item.tgl)) / (1000 * 60 * 60 * 24)); 
-                        if (diffHari === 0) diffHari = 1; 
-                        groupedData[key].sumHari += diffHari; 
-                        if (diffHari <= 3) groupedData[key].countTarget++; 
-                    }
+                    groupedData[key].totalItem += 1; if (item.status === 'Siap' || item.status === 'Selesai') groupedData[key].totalBiaya += item.hAktualTotal;
+                    if (item.status === 'Selesai' && item.tglSelesai) { groupedData[key].countSelesai++; let diffHari = Math.ceil(Math.abs(new Date(item.tglSelesai) - new Date(item.tgl)) / (1000 * 60 * 60 * 24)); if (diffHari === 0) diffHari = 1; groupedData[key].sumHari += diffHari; if (diffHari <= 3) groupedData[key].countTarget++; }
                 });
-
-                const sortedKeys = Object.keys(groupedData).sort();
-                const labels = sortedKeys;
-                const dataItem = []; const dataBiaya = []; const dataWaktu = []; const dataTarget = [];
-
-                sortedKeys.forEach(k => {
-                    dataItem.push(groupedData[k].totalItem);
-                    dataBiaya.push(groupedData[k].totalBiaya);
-                    let avg = groupedData[k].countSelesai > 0 ? (groupedData[k].sumHari / groupedData[k].countSelesai).toFixed(1) : 0;
-                    dataWaktu.push(avg);
-                    let target = groupedData[k].countSelesai > 0 ? Math.round((groupedData[k].countTarget / groupedData[k].countSelesai) * 100) : 0;
-                    dataTarget.push(target);
-                });
-
-                if(chartItemsInst) chartItemsInst.destroy();
-                if(chartBiayaInst) chartBiayaInst.destroy();
-                if(chartWaktuInst) chartWaktuInst.destroy();
-                if(chartTargetInst) chartTargetInst.destroy();
-
-                const ctxItems = document.getElementById('chartItems').getContext('2d');
-                chartItemsInst = new Chart(ctxItems, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Total Item Diajukan', data: dataItem, backgroundColor: 'rgba(52, 152, 219, 0.7)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Total Item Diajukan' } } } });
-
-                const ctxBiaya = document.getElementById('chartBiaya').getContext('2d');
-                chartBiayaInst = new Chart(ctxBiaya, { type: 'line', data: { labels: labels, datasets: [{ label: 'Total Biaya (Rp)', data: dataBiaya, backgroundColor: 'rgba(155, 89, 182, 0.2)', borderColor: '#8e44ad', borderWidth: 2, fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Total Biaya Belanja (Rp)' } } } });
-
-                if (activeUser.role !== 'pemohon') {
-                    document.getElementById('wrapChartWaktu').style.display = 'block'; document.getElementById('wrapChartTarget').style.display = 'block';
-                    const ctxWaktu = document.getElementById('chartWaktu').getContext('2d');
-                    chartWaktuInst = new Chart(ctxWaktu, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Rata-rata Waktu (Hari)', data: dataWaktu, backgroundColor: 'rgba(243, 156, 18, 0.7)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Rata-Rata Waktu Proses (Hari)' } } } });
-
-                    const ctxTarget = document.getElementById('chartTarget').getContext('2d');
-                    chartTargetInst = new Chart(ctxTarget, { type: 'line', data: { labels: labels, datasets: [{ label: 'Target Cepat (%)', data: dataTarget, backgroundColor: 'rgba(46, 204, 113, 0.2)', borderColor: '#27ae60', borderWidth: 2, fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Target Selesai < 3 Hari (%)' } }, scales: { y: { min: 0, max: 100 } } } });
-                } else {
-                    document.getElementById('wrapChartWaktu').style.display = 'none'; document.getElementById('wrapChartTarget').style.display = 'none';
-                }
+                const sortedKeys = Object.keys(groupedData).sort(); const labels = sortedKeys; const dataItem = []; const dataBiaya = []; const dataWaktu = []; const dataTarget = [];
+                sortedKeys.forEach(k => { dataItem.push(groupedData[k].totalItem); dataBiaya.push(groupedData[k].totalBiaya); let avg = groupedData[k].countSelesai > 0 ? (groupedData[k].sumHari / groupedData[k].countSelesai).toFixed(1) : 0; dataWaktu.push(avg); let target = groupedData[k].countSelesai > 0 ? Math.round((groupedData[k].countTarget / groupedData[k].countSelesai) * 100) : 0; dataTarget.push(target); });
+                if(chartItemsInst) chartItemsInst.destroy(); if(chartBiayaInst) chartBiayaInst.destroy(); if(chartWaktuInst) chartWaktuInst.destroy(); if(chartTargetInst) chartTargetInst.destroy();
+                const ctxItems = document.getElementById('chartItems').getContext('2d'); chartItemsInst = new Chart(ctxItems, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Total Item Diajukan', data: dataItem, backgroundColor: 'rgba(52, 152, 219, 0.7)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Total Item Diajukan' } } } });
+                const ctxBiaya = document.getElementById('chartBiaya').getContext('2d'); chartBiayaInst = new Chart(ctxBiaya, { type: 'line', data: { labels: labels, datasets: [{ label: 'Total Biaya (Rp)', data: dataBiaya, backgroundColor: 'rgba(155, 89, 182, 0.2)', borderColor: '#8e44ad', borderWidth: 2, fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Total Biaya Belanja (Rp)' } } } });
+                if (activeUser.role !== 'pemohon') { document.getElementById('wrapChartWaktu').style.display = 'block'; document.getElementById('wrapChartTarget').style.display = 'block'; const ctxWaktu = document.getElementById('chartWaktu').getContext('2d'); chartWaktuInst = new Chart(ctxWaktu, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Rata-rata Waktu (Hari)', data: dataWaktu, backgroundColor: 'rgba(243, 156, 18, 0.7)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Rata-Rata Waktu Proses (Hari)' } } } }); const ctxTarget = document.getElementById('chartTarget').getContext('2d'); chartTargetInst = new Chart(ctxTarget, { type: 'line', data: { labels: labels, datasets: [{ label: 'Target Cepat (%)', data: dataTarget, backgroundColor: 'rgba(46, 204, 113, 0.2)', borderColor: '#27ae60', borderWidth: 2, fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Target Selesai < 3 Hari (%)' } }, scales: { y: { min: 0, max: 100 } } } }); } else { document.getElementById('wrapChartWaktu').style.display = 'none'; document.getElementById('wrapChartTarget').style.display = 'none'; }
             } catch (err) { console.warn("Grafik sedang dimuat atau gagal render (mode offline)."); }
         }
 
@@ -1292,16 +1150,49 @@
             updateDashboardChart();
         }
 
-        function formatLampiranHTML(lampObj) { if(!lampObj) return '-'; if(lampObj.type === 'link') return `<a href="${lampObj.data}" target="_blank" class="lampiran-link">🔗 Lihat Link</a>`; if(lampObj.type === 'file') return `<a href="${lampObj.data}" download="${lampObj.name}" class="lampiran-link">⬇️ Unduh: ${lampObj.name}</a>`; return '-'; }
-        
-        function formatCatatanLengkapHTML(catatan, guna, alasan, status) { 
-            let html = ''; 
-            if(guna) html += `<div style="font-size:11px; color:#34495e; margin-bottom:3px;"><b>Tgl Rencana:</b> ${guna}</div>`; 
-            if(catatan) html += `<div style="font-size:11px; color:#7f8c8d; margin-bottom:3px;"><b>Catatan:</b> ${catatan}</div>`; 
-            if((status === 'Ditolak' || status === 'Pending') && alasan) html += `<div style="font-size:11px; color:#e74c3c;"><b>Ket Admin:</b> ${alasan}</div>`; 
-            return html || '-'; 
+        // UPDATE: PREVIEW LAMPIRAN MODAL
+        function formatLampiranHTML(lampObj, idx) { 
+            if(!lampObj) return '-'; 
+            if(lampObj.type === 'link') return `<a href="${lampObj.data}" target="_blank" class="lampiran-link">🔗 Lihat Link Drive</a>`; 
+            if(lampObj.type === 'file') return `<a onclick="previewLampiran(${idx})" class="lampiran-link">🔍 Preview File</a>`; 
+            return '-'; 
         }
 
+        function previewLampiran(idx) {
+            let item = dataItems[idx];
+            if(!item || !item.lampiran || item.lampiran.type !== 'file') return;
+            
+            document.getElementById('previewTitle').innerText = item.lampiran.name;
+            let container = document.getElementById('previewContainer');
+            container.innerHTML = '';
+            
+            let nameLower = item.lampiran.name.toLowerCase();
+            let isImage = nameLower.match(/\.(jpeg|jpg|gif|png|svg)$/i) != null || item.lampiran.data.startsWith('data:image');
+            let isPdf = nameLower.match(/\.(pdf)$/i) != null || item.lampiran.data.startsWith('data:application/pdf');
+            
+            if (isImage) {
+                container.innerHTML = `<img src="${item.lampiran.data}" style="max-width:100%; height:auto; border-radius:4px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">`;
+            } else if (isPdf) {
+                container.innerHTML = `<iframe src="${item.lampiran.data}" style="width:100%; height:60vh; border:1px solid #ddd; border-radius:4px;"></iframe>`;
+            } else {
+                container.innerHTML = `
+                    <div style="padding:40px 20px; background:#fff; border:1px solid #e9ecef; border-radius:5px; color:#2c3e50;">
+                        <span style="font-size:40px; display:block; margin-bottom:10px;">📄</span>
+                        <p style="font-size:14px; margin-bottom:0;">File <b>${item.lampiran.name}</b> tidak dapat dipreview langsung di browser.</p>
+                        <p style="font-size:12px; color:#7f8c8d;">Silakan klik tombol Download di bawah untuk membuka file tersebut.</p>
+                    </div>
+                `;
+            }
+            
+            let btnDl = document.getElementById('btnDownloadLampiran');
+            btnDl.href = item.lampiran.data;
+            btnDl.download = item.lampiran.name;
+            
+            document.getElementById('modalPreviewLampiran').style.display = 'flex';
+        }
+        function tutupPreviewLampiran() { document.getElementById('modalPreviewLampiran').style.display = 'none'; }
+        
+        function formatCatatanLengkapHTML(catatan, guna, alasan, status) { let html = ''; if(guna) html += `<div style="font-size:11px; color:#34495e; margin-bottom:3px;"><b>Tgl Rencana:</b> ${guna}</div>`; if(catatan) html += `<div style="font-size:11px; color:#7f8c8d; margin-bottom:3px;"><b>Catatan:</b> ${catatan}</div>`; if((status === 'Ditolak' || status === 'Pending') && alasan) html += `<div style="font-size:11px; color:#e74c3c;"><b>Ket Admin:</b> ${alasan}</div>`; return html || '-'; }
         function toggleCheckAll(el) { document.querySelectorAll('.chk-bast').forEach(cb => { if(cb.closest('tr').style.display !== 'none') { cb.checked = el.checked; } }); }
 
         function getFilteredHistori() { let start = document.getElementById('dlStartDate').value; let end = document.getElementById('dlEndDate').value; return dataItems.filter(i => { if(activeUser && activeUser.role === 'pemohon' && i.username !== activeUser.user) return false; if(start && i.tgl < start) return false; if(end && i.tgl > end) return false; return true; }); }
@@ -1309,18 +1200,16 @@
 
         function downloadHistoriExcel() {
             let data = getFilteredHistori(); if(data.length === 0) return alert("Tidak ada data di rentang tanggal ini.");
-            let exportData = data.map(i => ({ "ID Item": i.idItem, "Pemohon": i.pemohon, "Bidang": i.bidang, "Tgl Pengajuan": i.tgl, "Barang": i.nama, "Spesifikasi": i.spek || '-', "Jumlah": i.qty, "Satuan": i.satuan, "Total Budget (Rp)": i.budgetTotal, "Harga Satuan Aktual (Rp)": (i.status === 'Selesai' || i.status === 'Siap') ? (i.hAktualSatuan || 0) : '-', "Harga Total Aktual (Rp)": (i.status === 'Selesai' || i.status === 'Siap') ? (i.hAktualTotal || 0) : '-', "Tgl Rencana Pakai": i.tglGuna || '-', "Tgl Selesai": i.tglSelesai || '-', "Status": i.status, "Catatan / Keterangan": i.status === 'Ditolak' ? (i.alasan || '-') : (i.catatan || '-') }));
+            let exportData = data.map(i => ({ "ID Item": i.idItem, "Pemohon": i.pemohon, "Bidang": i.bidang, "Tgl Pengajuan": i.tgl, "Barang": i.nama, "Spesifikasi": i.spek || '-', "Jumlah": i.qty, "Satuan": i.satuan, "Total Estimasi Budget (Rp)": i.budgetTotal, "Harga Satuan Aktual (Rp)": i.hAktualSatuan || '-', "Harga Total Aktual (Rp)": i.hAktualTotal || '-', "Tgl Rencana Pakai": i.tglGuna || '-', "Tgl Selesai": i.tglSelesai || '-', "Status": i.status, "Catatan / Keterangan": i.status === 'Ditolak' ? (i.alasan || '-') : (i.catatan || '-') }));
             let ws = XLSX.utils.json_to_sheet(exportData); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Daftar_Barang"); XLSX.writeFile(wb, `Daftar_Barang_Periode_${getPeriodeText()}.xlsx`);
         }
 
         function downloadHistoriPDF() {
             let data = getFilteredHistori(); if(data.length === 0) return alert("Tidak ada data di rentang tanggal ini.");
             isModalOpen = true; let periode = getPeriodeText(); let periodeDisplay = periode.replace(/_sd_/g, ' s/d ').replace(/_/g, ' ');
-            
-            let html = `<div style="font-family: Arial, sans-serif; padding: 20px; background: #ffffff;"><h2 style="text-align:center; margin-bottom: 5px;">Laporan Daftar Pengadaan Barang</h2><p style="text-align:center; margin-top: 0; margin-bottom: 20px; font-size: 14px;">Periode: ${periodeDisplay}</p><table style="width: 100%; border-collapse: collapse; font-size: 10px;"><thead><tr style="background-color: #f2f2f2;"><th style="border: 1px solid #000; padding: 5px;">Pemohon (Bidang)</th><th style="border: 1px solid #000; padding: 5px;">Tgl Masuk</th><th style="border: 1px solid #000; padding: 5px;">Barang & Spek</th><th style="border: 1px solid #000; padding: 5px;">Qty</th><th style="border: 1px solid #000; padding: 5px;">Budget</th><th style="border: 1px solid #000; padding: 5px;">Harga Aktual</th><th style="border: 1px solid #000; padding: 5px;">Tgl Rencana</th><th style="border: 1px solid #000; padding: 5px;">Tgl Selesai</th><th style="border: 1px solid #000; padding: 5px;">Status & Ket</th></tr></thead><tbody>`;
+            let html = `<div style="font-family: Arial, sans-serif; padding: 20px; background: #ffffff;"><h2 style="text-align:center; margin-bottom: 5px;">Laporan Daftar Pengadaan Barang</h2><p style="text-align:center; margin-top: 0; margin-bottom: 20px; font-size: 14px;">Periode: ${periodeDisplay}</p><table style="width: 100%; border-collapse: collapse; font-size: 10px;"><thead><tr style="background-color: #f2f2f2;"><th style="border: 1px solid #000; padding: 5px;">Pemohon (Bidang)</th><th style="border: 1px solid #000; padding: 5px;">Tgl Masuk</th><th style="border: 1px solid #000; padding: 5px;">Barang & Spek</th><th style="border: 1px solid #000; padding: 5px;">Qty</th><th style="border: 1px solid #000; padding: 5px;">Estimasi Budget</th><th style="border: 1px solid #000; padding: 5px;">Harga Aktual</th><th style="border: 1px solid #000; padding: 5px;">Tgl Rencana</th><th style="border: 1px solid #000; padding: 5px;">Tgl Selesai</th><th style="border: 1px solid #000; padding: 5px;">Status & Ket</th></tr></thead><tbody>`;
             data.forEach(i => { let note = i.status === 'Ditolak' ? (i.alasan || '-') : (i.catatan || '-'); html += `<tr><td style="border: 1px solid #000; padding: 5px;">${i.pemohon}<br>(${i.bidang})</td><td style="border: 1px solid #000; padding: 5px;">${i.tgl}</td><td style="border: 1px solid #000; padding: 5px;"><b>${i.nama}</b><br>${i.spek || '-'}</td><td style="border: 1px solid #000; padding: 5px; text-align:center;">${i.qty} ${i.satuan}</td><td style="border: 1px solid #000; padding: 5px; text-align:right;">${formatRp(i.budgetTotal)}</td><td style="border: 1px solid #000; padding: 5px; text-align:right;">${(i.status === 'Selesai' || i.status === 'Siap') ? formatRp(i.hAktualTotal) : '-'}</td><td style="border: 1px solid #000; padding: 5px; text-align:center;">${i.tglGuna || '-'}</td><td style="border: 1px solid #000; padding: 5px; text-align:center;">${i.tglSelesai || '-'}</td><td style="border: 1px solid #000; padding: 5px;"><b>${i.status}</b><br>${note}</td></tr>`; });
             html += `</tbody></table></div>`;
-            
             let container = document.getElementById('hiddenDocumentContainer'); container.innerHTML = html;
             let opt = { margin: 5, filename: `Daftar_Barang_Periode_${periode}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } };
             setTimeout(() => { html2pdf().set(opt).from(container).save().then(() => { container.innerHTML = ''; isModalOpen = false; }); }, 300);
@@ -1343,22 +1232,10 @@
                     });
                 }
 
-                let fPengSearch = document.getElementById('pengSearch') ? document.getElementById('pengSearch').value.toLowerCase() : '';
-                let fPengPemohon = document.getElementById('pengFilterPemohon') ? document.getElementById('pengFilterPemohon').value : '';
-                let fPengBidang = document.getElementById('pengFilterBidang') ? document.getElementById('pengFilterBidang').value : '';
-
-                let fProsSearch = document.getElementById('prosSearch') ? document.getElementById('prosSearch').value.toLowerCase() : '';
-                let fProsPemohon = document.getElementById('prosFilterPemohon') ? document.getElementById('prosFilterPemohon').value : '';
-                let fProsBidang = document.getElementById('prosFilterBidang') ? document.getElementById('prosFilterBidang').value : '';
-
-                let fStSearch = document.getElementById('stSearch') ? document.getElementById('stSearch').value.toLowerCase() : '';
-                let fStPemohon = document.getElementById('stFilterPemohon') ? document.getElementById('stFilterPemohon').value : '';
-                let fStBidang = document.getElementById('stFilterBidang') ? document.getElementById('stFilterBidang').value : '';
-
-                let fDpSearch = document.getElementById('dpSearch') ? document.getElementById('dpSearch').value.toLowerCase() : '';
-                let fDpPemohon = document.getElementById('dpFilterPemohon') ? document.getElementById('dpFilterPemohon').value : '';
-                let fDpBidang = document.getElementById('dpFilterBidang') ? document.getElementById('dpFilterBidang').value : '';
-                let fDpStatus = document.getElementById('dpFilterStatus') ? document.getElementById('dpFilterStatus').value : '';
+                let fPengSearch = document.getElementById('pengSearch') ? document.getElementById('pengSearch').value.toLowerCase() : ''; let fPengPemohon = document.getElementById('pengFilterPemohon') ? document.getElementById('pengFilterPemohon').value : ''; let fPengBidang = document.getElementById('pengFilterBidang') ? document.getElementById('pengFilterBidang').value : '';
+                let fProsSearch = document.getElementById('prosSearch') ? document.getElementById('prosSearch').value.toLowerCase() : ''; let fProsPemohon = document.getElementById('prosFilterPemohon') ? document.getElementById('prosFilterPemohon').value : ''; let fProsBidang = document.getElementById('prosFilterBidang') ? document.getElementById('prosFilterBidang').value : '';
+                let fStSearch = document.getElementById('stSearch') ? document.getElementById('stSearch').value.toLowerCase() : ''; let fStPemohon = document.getElementById('stFilterPemohon') ? document.getElementById('stFilterPemohon').value : ''; let fStBidang = document.getElementById('stFilterBidang') ? document.getElementById('stFilterBidang').value : '';
+                let fDpSearch = document.getElementById('dpSearch') ? document.getElementById('dpSearch').value.toLowerCase() : ''; let fDpPemohon = document.getElementById('dpFilterPemohon') ? document.getElementById('dpFilterPemohon').value : ''; let fDpBidang = document.getElementById('dpFilterBidang') ? document.getElementById('dpFilterBidang').value : ''; let fDpStatus = document.getElementById('dpFilterStatus') ? document.getElementById('dpFilterStatus').value : '';
 
                 const tP=document.getElementById('bodyTabelPengajuan'), tPr=document.getElementById('bodyTabelProses'), tS=document.getElementById('bodyTabelSerahTerima'), tH=document.getElementById('bodyTabelHistoriItem');
                 tP.innerHTML=''; tPr.innerHTML=''; tS.innerHTML=''; tH.innerHTML='';
@@ -1371,51 +1248,41 @@
                     let hTot = (i.status === 'Selesai' || i.status === 'Siap') ? formatRp(i.hAktualTotal) : '-';
                     let clH = 'bg-secondary'; if(i.status==='Pending' || i.status==='Proses Belanja') clH='bg-warning'; else if(i.status==='Disetujui') clH='bg-info'; else if(i.status==='Siap') clH='bg-success'; else if(i.status==='Selesai') clH='bg-dark'; else if(i.status==='Ditolak') clH='bg-danger';
                     
-                    let lampHtml = formatLampiranHTML(i.lampiran); 
+                    let lampHtml = formatLampiranHTML(i.lampiran, idx); 
                     let ketHtml = formatCatatanLengkapHTML(i.catatan, i.tglGuna, i.alasan, i.status);
 
-                    // 1. RENDER PENGAJUAN
                     if (i.status === 'Pengajuan' || i.status === 'Pending' || (activeUser && activeUser.role === 'pemohon' && i.status === 'Ditolak')) {
                         let matchPeng = (fPengSearch === '' || i.nama.toLowerCase().includes(fPengSearch) || i.pemohon.toLowerCase().includes(fPengSearch)) && (fPengPemohon === '' || i.pemohon === fPengPemohon) && (fPengBidang === '' || i.bidang === fPengBidang);
-                        
                         if(matchPeng) {
                             let actionBtn = '';
                             if (activeUser && activeUser.role === 'asesor') { let btnPending = i.status === 'Pengajuan' ? `<button class="btn-warning" onclick="mintaAlasan(${idx}, 'Pending')">⏳</button>` : ''; actionBtn = `<button class="btn-success" onclick="ubahStatus(${idx}, 'Disetujui')">✔</button> ${btnPending} <button class="btn-danger" onclick="mintaAlasan(${idx}, 'Ditolak')">✖</button> <button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏</button>`; } else if (activeUser && activeUser.role === 'admin') { actionBtn = `<button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`; } else if (activeUser && activeUser.role === 'pemohon') { if (i.status === 'Pengajuan' || i.status === 'Pending') { actionBtn = `<button class="btn-info" onclick="bukaModalEditPengajuan(${idx})">✏ Edit</button>`; } else if (i.status === 'Ditolak') { actionBtn = `<button class="btn-primary" onclick="bukaModalEditPengajuan(${idx})">🔄 Ajukan Ulang</button>`; } }
-                            
                             tP.innerHTML += `<tr><td><strong>${i.idItem}</strong></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td style="white-space:normal;">${i.nama} (${i.qty} ${i.satuan})</td><td style="max-width:200px;">${lampHtml}</td><td>${i.tgl}</td><td>${formatRp(i.budgetTotal)}</td><td><span class="badge ${clH}">${i.status}</span></td><td style="min-width: 100px;">${actionBtn}</td></tr>`;
                         }
                     } 
                     
-                    // 2. RENDER PROSES (Dihilangkan: Harga Satuan, Harga Total, Tgl Selesai)
                     if (i.status === 'Disetujui' || i.status === 'Proses Belanja') {
                         if (activeUser && activeUser.role !== 'pemohon') { 
                             let matchPros = (fProsSearch === '' || i.nama.toLowerCase().includes(fProsSearch) || i.pemohon.toLowerCase().includes(fProsSearch)) && (fProsPemohon === '' || i.pemohon === fProsPemohon) && (fProsBidang === '' || i.bidang === fProsBidang);
-                            
                             if (matchPros) {
                                 let btn = i.status === 'Disetujui' ? `<button class="btn-warning" onclick="ubahStatus(${idx}, 'Proses Belanja')">Proses</button>` : `<button class="btn-success" onclick="bukaModalHarga(${idx})">Selesai</button>`; 
-                                
                                 tPr.innerHTML += `<tr><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.tgl}</td><td><strong>${i.nama}</strong><br><small>${i.spek || '-'}</small></td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.budgetTotal)}</td><td>${i.tglGuna || '-'}</td><td><span class="badge ${clH}">${i.status}</span></td><td style="font-size:11px; max-width: 150px;">${lampHtml}<br>${ketHtml}</td><td>${btn}</td></tr>`;
                             }
                         }
                     }
 
-                    // 3. RENDER SERAH TERIMA (Dihilangkan: Budget, Tgl Rencana, Lampiran)
                     if (i.status === 'Siap') {
                         if (activeUser && activeUser.role !== 'pemohon') { 
                             let matchSt = (fStSearch === '' || i.nama.toLowerCase().includes(fStSearch) || i.pemohon.toLowerCase().includes(fStSearch)) && (fStPemohon === '' || i.pemohon === fStPemohon) && (fStBidang === '' || i.bidang === fStBidang);
-                            
-                            if (matchSt) {
-                                tS.innerHTML += `<tr><td style="text-align:center;"><input type="checkbox" class="chk-bast" value="${i.idItem}" style="transform: scale(1.2); cursor:pointer;"></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.tgl}</td><td><strong>${i.nama}</strong><br><small>${i.spek || '-'}</small></td><td>${i.qty} ${i.satuan}</td><td>${hSat}</td><td><strong>${hTot}</strong></td><td>${i.tglSelesai || '-'}</td><td><span class="badge bg-success">Siap</span></td><td><button class="btn-danger" onclick="batalkanSiap(${idx})">Batalkan Siap</button></td></tr>`;
-                            }
+                            if (matchSt) { tS.innerHTML += `<tr><td style="text-align:center;"><input type="checkbox" class="chk-bast" value="${i.idItem}" style="transform: scale(1.2); cursor:pointer;"></td><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.tgl}</td><td><strong>${i.nama}</strong><br><small>${i.spek || '-'}</small></td><td>${i.qty} ${i.satuan}</td><td>${hSat}</td><td><strong>${hTot}</strong></td><td>${i.tglSelesai || '-'}</td><td><span class="badge bg-success">Siap</span></td><td><button class="btn-danger" onclick="batalkanSiap(${idx})">Batalkan Siap</button></td></tr>`; }
                         }
                     }
 
-                    // 4. RENDER DATABASE PENGADAAN
                     let matchDp = (fDpSearch === '' || i.nama.toLowerCase().includes(fDpSearch) || i.pemohon.toLowerCase().includes(fDpSearch)) && (fDpPemohon === '' || i.pemohon === fDpPemohon) && (fDpBidang === '' || i.bidang === fDpBidang) && (fDpStatus === '' || i.status === fDpStatus);
-                    
                     if (matchDp) {
                         let btnAksi = activeUser.role !== 'pemohon' ? `<button class="btn-warning" onclick="bukaModalEditItem(${idx})">Edit Item</button>` : '-';
-                        tH.innerHTML += `<tr><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.tgl}</td><td><strong>${i.nama}</strong><br><small>${i.spek || '-'}</small></td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.budgetTotal)}</td><td>${hSat}</td><td>${hTot}</td><td>${i.tglGuna || '-'}</td><td>${i.tglSelesai || '-'}</td><td><span class="badge ${clH}">${i.status}</span></td><td style="font-size:11px; max-width: 150px;">${lampHtml}<br>${ketHtml}</td><td>${btnAksi}</td></tr>`;
+                        let showHsat = i.hAktualSatuan ? formatRp(i.hAktualSatuan) : '-';
+                        let showHtot = i.hAktualTotal ? formatRp(i.hAktualTotal) : '-';
+                        tH.innerHTML += `<tr><td>${i.pemohon}<br><small>${i.bidang}</small></td><td>${i.tgl}</td><td><strong>${i.nama}</strong><br><small>${i.spek || '-'}</small></td><td>${i.qty} ${i.satuan}</td><td>${formatRp(i.budgetTotal)}</td><td>${showHsat}</td><td>${showHtot}</td><td>${i.tglGuna || '-'}</td><td>${i.tglSelesai || '-'}</td><td><span class="badge ${clH}">${i.status}</span></td><td style="font-size:11px; max-width: 150px;">${lampHtml}<br>${ketHtml}</td><td>${btnAksi}</td></tr>`;
                     }
                 });
 
@@ -1425,26 +1292,11 @@
                     document.getElementById('bodyTabelBAST').innerHTML = dataBAST.map(b => {
                         let btnExport = `<button class="btn-icon" onclick="printBAST('${b.id}')" title="Print Dokumen">🖨️ Print</button> <button class="btn-icon" onclick="downloadPDF('${b.id}')" title="Unduh PDF">📄 PDF</button> <button class="btn-icon" onclick="downloadWord('${b.id}')" title="Unduh Word">📝 Word</button> <button class="btn-icon" onclick="downloadIMG('${b.id}')" title="Unduh Gambar">🖼️ IMG</button>`;
                         let btnAksi = `<button class="btn-warning" onclick="editBAST('${b.id}')">Edit</button> <button class="btn-danger" onclick="hapusBAST('${b.id}')">Hapus</button>`;
-                        
                         let listBarang = ''; let countItems = 0; let manualLabel = '';
-                        if (b.itemsManual && b.itemsManual.length > 0) {
-                            listBarang = b.itemsManual.map(val => val.nama).join(', ');
-                            countItems = b.itemsManual.length;
-                            manualLabel = '<span class="badge bg-warning" style="margin-bottom:3px;">Luar Sistem</span><br>';
-                        } else {
-                            let arrItems = b.items || b.itemsIdx || [];
-                            listBarang = arrItems.map(val => { let it = typeof val === 'string' ? dataItems.find(x => x.idItem === val) : dataItems[val]; return it ? it.nama : '-'; }).join(', ');
-                            countItems = arrItems.length;
-                        }
-
+                        if (b.itemsManual && b.itemsManual.length > 0) { listBarang = b.itemsManual.map(val => val.nama).join(', '); countItems = b.itemsManual.length; manualLabel = '<span class="badge bg-warning" style="margin-bottom:3px;">Luar Sistem</span><br>'; } else { let arrItems = b.items || b.itemsIdx || []; listBarang = arrItems.map(val => { let it = typeof val === 'string' ? dataItems.find(x => x.idItem === val) : dataItems[val]; return it ? it.nama : '-'; }).join(', '); countItems = arrItems.length; }
                         if(listBarang.length > 50) listBarang = listBarang.substring(0, 50) + '...';
-                        
-                        let listTembusan = b.tembusan ? b.tembusan.join('<br>') : '-';
-                        let htmlCatatan = b.catatanBAST ? `<br><small style="color:#e67e22;"><b>Catatan:</b> ${b.catatanBAST}</small>` : '';
-
-                        let p1n = b.p1 ? (b.p1.nama || b.p1) : '-'; let p1j = b.p1 ? (b.p1.jab || '-') : '-';
-                        let p2n = b.p2 ? (b.p2.nama || b.p2) : '-'; let p2j = b.p2 ? (b.p2.jab || '-') : '-';
-
+                        let listTembusan = b.tembusan ? b.tembusan.join('<br>') : '-'; let htmlCatatan = b.catatanBAST ? `<br><small style="color:#e67e22;"><b>Catatan:</b> ${b.catatanBAST}</small>` : '';
+                        let p1n = b.p1 ? (b.p1.nama || b.p1) : '-'; let p1j = b.p1 ? (b.p1.jab || '-') : '-'; let p2n = b.p2 ? (b.p2.nama || b.p2) : '-'; let p2j = b.p2 ? (b.p2.jab || '-') : '-';
                         return `<tr><td><strong>${b.noSurat}</strong><br><small>Bidang: ${b.judul}</small></td><td>${b.tanggal}</td><td><strong>${p1n}</strong><br><small>${p1j}</small></td><td><strong>${p2n}</strong><br><small>${p2j}</small></td><td style="max-width: 150px;">${manualLabel}${listBarang} <br><small>(${countItems} Item)</small></td><td style="font-size: 11px;">${listTembusan} ${htmlCatatan}</td><td style="min-width: 140px;">${btnExport}</td><td>${btnAksi}</td></tr>`;
                     }).join('');
                 }
